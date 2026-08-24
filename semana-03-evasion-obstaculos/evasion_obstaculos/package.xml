@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>evasion_obstaculos</name>
+  <version>0.1.0</version>
+  <description>Semana 03 del Challenge JAR: maquina de estados para avanzar, detectar un choque inminente con el lidar y girar un angulo fijo (medido con odometria) antes de retomar la marcha.</description>
+  <maintainer email="rafadiaz71@gmail.com">AIR Club UdeSA</maintainer>
+  <license>MIT</license>
+
+  <!--
+    TODO: declarar acá las dependencias que usa evasor.py — un <depend>paquete</depend>
+    por cada paquete de ROS (o librería) que se importa en el código. Es lo que le
+    dice a colcon/rosdep qué instalar y qué debe estar buildeado antes que este
+    paquete. Pista: mirá los imports al principio de evasor.py — cada import de
+    rclpy o de un paquete de mensajes necesita su <depend>. numpy no es un paquete
+    ROS, así que su nombre acá es distinto al nombre con el que se importa en
+    Python (buscá "python3-numpy" para confirmar).
+  -->
+
+  <!-- TODO: son estas de abajo — descomentalas (borrá las marcas de comentario de
+       abajo). En este workshop te las damos como ayuda, pero cuando armes un
+       nodo propio de cero las vas a tener que escribir vos, mirando
+       los imports de tu código.
+  -->
+
+  <!--
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>python3-numpy</depend>
+  -->
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -22,3 +22,4 @@ source install/setup.bash
 | --- | --- | --- |
 | 01 | `talkers_listeners` | Talkers y listeners |
 | 02 | `zigzag_mecanum` | Zigzag mecanum |
+| 03 | `evasion_obstaculos` | Evasión de obstáculos (máquina de estados) |
