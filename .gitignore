@@ -3,3 +3,9 @@ install/
 log/
 __pycache__/
 *.pyc
+
+# Soluciones ("ground truth") de los workshops: se usan para probar
+# localmente, pero nunca se suben al repo — lo que se publica es la
+# versión con TODOs, en el archivo sin el sufijo _gth.
+*_gth.py
+*_gth.xml
