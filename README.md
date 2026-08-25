@@ -26,3 +26,15 @@ source install/setup.bash
 | 04 | `deteccion_color` | Detección de color con cámara + lidar |
 
 Ver [`PROXIMOS_WORKSHOPS.md`](PROXIMOS_WORKSHOPS.md) para el roadmap de lo que sigue.
+
+## Contribuir
+
+La rama `main` está protegida en GitHub (branch protection rule, classic). Todo cambio a `main` tiene que pasar por un pull request:
+
+1. Creá una branch para tu cambio (`git checkout -b feature/mi-cambio`)
+2. Subí la branch y abrí un PR contra `main`
+3. Se necesita al menos 1 aprobación de otra persona (distinta del autor) antes de poder mergear
+4. Resolvé todos los comentarios de revisión antes de mergear
+5. Si se suben commits nuevos después de una aprobación, esa aprobación se invalida y hay que volver a pedir revisión
+6. El último commit del PR también tiene que estar aprobado por alguien distinto de quien lo subió
+7. No se puede pushear directo a `main`, ni siquiera los admins del repo pueden saltearse estas reglas
