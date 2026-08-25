@@ -19,6 +19,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            # Estos son los ejecutables, al declararlos acá, ROS 2 los va a poder encontrar y ejecutar.
             'talker = talkers_listeners.talker:main',
             'listener = talkers_listeners.listener:main',
         ],
