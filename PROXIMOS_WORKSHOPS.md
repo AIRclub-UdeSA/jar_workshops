@@ -18,40 +18,18 @@ convenga que localización vaya primero. Los dejamos en el orden en que
 surgieron en la conversación para no perder el razonamiento de cada uno,
 pero la numeración final de las semanas debería resolver esta dependencia.
 
-Fuera de eso, la progresión general es: **Workshop 0** y la **sección
-transversal de launch/RViz** van antes que todo (incluso antes de la
-semana 01 actual, son el "semana 00"); el resto son continuaciones
-directas de conceptos ya instalados en las semanas 03 y 04.
+Fuera de eso, la progresión general es: la **sección transversal de
+launch/RViz** va antes que todo lo que sigue — probablemente como
+apéndice de la [semana 01](semana-01-talkers-listeners/) (ya escrita);
+el resto son continuaciones directas de conceptos ya instalados en las
+semanas 03 y 04.
 
 ---
-
-## Workshop 0 — "Tu primer nodo: pub/sub, callbacks y timers"
-
-**Por qué hace falta:** es el que le da sentido a todo lo demás. Sin él,
-semana 03 arranca "en el medio de la película" — asume que ya se sabe qué
-es un nodo, un publisher, un subscriber y un timer callback, y ese
-conocimiento hoy no se enseña en ningún lado del programa.
-
-**Qué cubre**, para alguien que nunca tocó ROS 2:
-
-- Qué es un nodo.
-- La diferencia entre un publisher y un subscriber.
-- Por qué los callbacks de sensores "solo deberían guardar datos" — la
-  regla que semana 03 y semana 04 ya usan, pero acá explicada desde cero
-  y sin la presión de un lidar o una cámara real de por medio.
-- Qué es un timer callback y por qué conviene correr la lógica ahí y no
-  en el callback del sensor.
-- Cómo se ve un `package.xml` / `setup.py` mínimo.
-
-**Mini-proyecto sugerido:** chico y autocontenido — un nodo que publique
-un contador a frecuencia fija y otro que lo escuche y lo loguee. La idea
-es que la primera vez que alguien vea estos conceptos no sea ya con lidar
-y cámara de por medio, sino con el ejemplo más simple posible.
 
 ## Sección transversal — "Armá tu launch y tu RViz"
 
 No es un workshop con tema propio, sino una sección que se escribe una
-sola vez — probablemente como apéndice del Workshop 0, o como su propio
+sola vez — probablemente como apéndice de la semana 01, o como su propio
 mini-workshop corto — y después se referencia desde todos los demás.
 
 **Qué cubre:**
