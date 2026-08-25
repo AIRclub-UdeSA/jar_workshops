@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>deteccion_color</name>
+  <version>0.1.0</version>
+  <description>Semana 04 del Challenge JAR: deteccion de cuadrados rojos con la camara (HSV + OpenCV) y publicacion del resultado en un topico.</description>
+  <maintainer email="rafadiaz71@gmail.com">AIR Club UdeSA</maintainer>
+  <license>MIT</license>
+
+  <!--
+    TODO: declarar acá las dependencias que usan detector.py y detector_scan.py —
+    un <depend>paquete</depend> por cada paquete de ROS (o librería) que se
+    importa en el código. Es lo que le dice a colcon/rosdep qué instalar y qué
+    debe estar buildeado antes que este paquete. Pista: mirá los imports al
+    principio de cada archivo — cv2 y numpy no son paquetes ROS, así que sus
+    nombres acá son distintos a como se importan en Python (buscá
+    "python3-opencv" y "python3-numpy" para confirmar). detector_scan.py además
+    usa tf2 para ubicar la cámara respecto del lidar. Primero completá para detector.py,
+    y luego agregá lo que haga falta para detector_scan.py.
+  -->
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
