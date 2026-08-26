@@ -16,7 +16,7 @@ programas de ROS 2 entre sí, sin que un sensor real complique el ejemplo.
 
 ### ¿Qué es un nodo?
 
-Un **nodo** es, ni más ni menos, un programa que corre dentro de ROS 2 y
+Un [**nodo**](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Nodes/Understanding-ROS2-Nodes.html) es, ni más ni menos, un programa que corre dentro de ROS 2 y
 que puede hablar con otros nodos. En un robot real puede haber decenas de
 nodos corriendo a la vez: uno que lee el lidar, otro que lee la cámara,
 otro que decide para dónde moverse, otro que mueve las ruedas — cada uno
@@ -25,7 +25,7 @@ información sin que cada uno tenga que saber cómo están escritos los
 demás.
 
 En este workshop van a escribir dos nodos: `Talker` y `Listener`, cada uno
-heredando de la clase `Node` de `rclpy` (la librería de ROS 2 para
+heredando de la clase `Node` de [`rclpy`](https://docs.ros2.org/latest/api/rclpy/) (la librería de ROS 2 para
 Python). Eso es lo mínimo que necesita cualquier nodo:
 
 ```python
@@ -37,7 +37,7 @@ class Talker(Node):
 ### Tópicos, publishers y subscribers
 
 Los nodos no se hablan directamente entre sí (el talker no conoce al
-listener, ni falta que le haga). Se comunican a través de **tópicos**: un
+listener, ni falta que le haga). Se comunican a través de [**tópicos**](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Topics/Understanding-ROS2-Topics.html): un
 canal con nombre (acá, `'mensaje'`) al que unos nodos **publican** datos y
 otros se **suscriben** para recibirlos. Puede haber cero, uno o varios
 publishers y subscribers en el mismo tópico, y no se necesitan entre sí
@@ -45,7 +45,7 @@ para funcionar — el talker publica igual aunque no haya ningún listener
 escuchando.
 
 Cada tópico tiene un **tipo de mensaje** fijo — acá usamos
-`std_msgs/String`, el tipo de mensaje más simple que hay (un solo campo,
+[`std_msgs/String`](https://docs.ros2.org/latest/api/std_msgs/msg/String.html), el tipo de mensaje más simple que hay (un solo campo,
 `data`, con texto). Todo tópico tiene un tipo de mensaje: como van a ver en
 workshops que vienen, un lidar publica `LaserScan`, una cámara publica
 `Image`, etc. Publisher y subscriber tienen que declarar el mismo tipo
@@ -110,7 +110,7 @@ Guarden esta idea para cuando lleguen a la semana 03 — ahí van a ver
 ### El paquete ROS 2: `setup.py` y `package.xml`
 
 Todo nodo de Python vive adentro de un **paquete** ROS 2 (acá,
-`talkers_listeners`), y todo paquete `ament_python` necesita dos archivos
+`talkers_listeners`), y todo [paquete `ament_python`](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Creating-Your-First-ROS2-Package.html) necesita dos archivos
 de configuración para que ROS 2 sepa cómo instalarlo y correrlo. En este
 workshop ya vienen completos — alcanza con mirarlos una vez para entender
 qué hace cada uno, porque de acá en adelante los van a tener que tocar

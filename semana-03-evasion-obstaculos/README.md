@@ -58,8 +58,10 @@ seguir algunas reglas de diseño:
   llegan los sensores.
 - **Los callbacks de los sensores solo actualizan variables**, nunca mueven
   el robot ni deciden nada por su cuenta. `recibir_scan()` guarda el último
-  `LaserScan` en `self.ultimo_scan`; `recibir_odom()` guarda el yaw actual en
-  `self.yaw_actual`. Toda la lógica vive en un solo lugar: la máquina de
+  [`LaserScan`](https://docs.ros2.org/latest/api/sensor_msgs/msg/LaserScan.html)
+  en `self.ultimo_scan`; `recibir_odom()` guarda el yaw actual (a partir de un
+  [`nav_msgs/Odometry`](https://docs.ros2.org/latest/api/nav_msgs/msg/Odometry.html))
+  en `self.yaw_actual`. Toda la lógica vive en un solo lugar: la máquina de
   estados.
 - **Tener una función de transición clara, con estados excluyentes.** La
   transición (decidir si `self.estado` cambia) tiene que estar separada de
@@ -86,9 +88,9 @@ archivos de configuración para que ROS 2 sepa cómo buildearlo y correrlo:
   aunque el código esté perfecto.
 - **`package.xml`** declara, entre otras cosas, las dependencias del
   paquete (`<depend>`) — un `<depend>` por cada paquete de ROS (o librería
-  del sistema) que el código importa. `colcon` y `rosdep` usan esto para
-  saber qué paquetes tienen que estar instalados y buildeados antes que el
-  nuestro.
+  del sistema) que el código importa. [`colcon`](https://colcon.readthedocs.io/)
+  y `rosdep` usan esto para saber qué paquetes tienen que estar instalados y
+  buildeados antes que el nuestro.
 
 Ambos son parte de la plantilla de cualquier paquete ROS 2 en Python, así
 que vale la pena completarlos a mano una vez para entender qué hace cada

@@ -34,7 +34,7 @@ iluminación: un rojo bajo luz de sombra tiene valores de R, G y B muy
 distintos a ese mismo rojo bajo luz directa. Filtrar por rangos de R, G y B
 por separado tiende a fallar apenas cambia la luz.
 
-**HSV** (Hue/Matiz, Saturation/Saturación, Value/Brillo) separa el "qué
+[**HSV**](https://docs.opencv.org/4.x/de/d25/imgproc_color_conversions.html) (Hue/Matiz, Saturation/Saturación, Value/Brillo) separa el "qué
 color es" (H) de "qué tan intenso" (S) y "qué tan claro/oscuro" (V). Esto
 importa porque la luz cambia sobre todo S y V, y deja H relativamente
 estable — así que filtrar por un rango de H es mucho más robusto a la
@@ -47,7 +47,8 @@ H se mide en grados alrededor de un círculo (0°-360°, que OpenCV comprime a
 puede aparecer tanto en tonos cercanos a 0 como en tonos cercanos a 180
 (que es lo mismo que -0° dando la vuelta completa). Por eso, para capturar
 todos los rojos hacen falta **dos rangos de H** (uno pegado a 0, otro pegado
-a 180), y no alcanza con un solo `cv2.inRange`. Esto no pasa con el azul,
+a 180), y no alcanza con un solo [`cv2.inRange`](https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga48af0ab51e36436c5d04340e036ce981).
+Esto no pasa con el azul,
 que cae cómodo en un solo rango en el medio del círculo — es una de las
 razones por las que "rojo" es un buen primer color para practicar
 segmentación por color.
@@ -76,9 +77,11 @@ separar quién guarda datos de quién decide:
 
 El archivo ya tiene resuelto todo lo que no es la detección de color en sí:
 los parámetros ROS, el publisher/subscriber, la conversión de `Image` a
-array de OpenCV (`recibir_imagen`), y una función de apoyo ya resuelta
-(`area_mayor_contorno` — busca contornos con `cv2.findContours` y devuelve
-el área del más grande; no es el objetivo de este workshop). Quedan 3
+array de OpenCV con [`cv_bridge`](https://github.com/ros-perception/vision_opencv)
+(`recibir_imagen`), y una función de apoyo ya resuelta
+(`area_mayor_contorno` — busca contornos con
+[`cv2.findContours`](https://docs.opencv.org/4.x/d4/d73/tutorial_py_contours_begin.html)
+y devuelve el área del más grande; no es el objetivo de este workshop). Quedan 3
 funciones con `TODO` para completar, cada una con una guía en su docstring:
 
 1. **`mascara_rojo()`** — la percepción: dada una imagen en HSV, devolver
@@ -157,7 +160,24 @@ source install/setup.bash
 ros2 run deteccion_color detector
 ```
 
-Chequeos útiles en una cuarta terminal:
+El robot arranca en `laberinto_simple_obs.world` sin ningún cuadrado a la
+vista, así que hace falta manejarlo hasta ponerlo frente a uno para ver algo
+en `/rojo_detectado`. Usá una cuarta terminal con teleoperación por teclado
+(instalada en el [paso 6 de la guía de
+setup](https://airclub-udesa.github.io/jar_site/setup/simulador/#6-teleoperación)
+— si no la tenés, `sudo apt install ros-humble-teleop-twist-keyboard`):
+
+```bash
+# Terminal 4 — teleop (para acercar el robot a un cuadrado)
+source install/setup.bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
+
+Al ser mecanum, además de `i`/`,` (adelante/atrás) y `j`/`l` (girar) podés
+usar las teclas en mayúscula (`I`/`J`/`L`/`U`/`O`/`M`/`<`/`>`, con Shift)
+para strafear de costado sin girar.
+
+Chequeos útiles en una quinta terminal:
 
 ```bash
 ros2 topic hz /cam_1/color/image_raw   # confirmar que la cámara publica
@@ -194,7 +214,8 @@ cosas:
   (rotación + traslación) entre `laser_link` y el frame óptico de la
   cámara. No hay que medirla a mano: como las dos están descriptas en el
   URDF del robot con joints fijos, `robot_state_publisher` ya la publica en
-  `tf2`, y basta con pedirla (`tf_buffer.lookup_transform(...)`).
+  [`tf2`](https://docs.ros.org/en/lyrical/Tutorials/Intermediate/Tf2/Tf2-Main.html), y
+  basta con pedirla (`tf_buffer.lookup_transform(...)`).
 - **Cómo proyecta la cámara** — el modelo *pinhole*: un punto en el frame
   óptico de la cámara (x derecha, y abajo, z adelante) se proyecta al pixel
   `u = fx * x/z + cx`, `v = fy * y/z + cy`. `fx`, `fy`, `cx`, `cy` son los
@@ -291,13 +312,30 @@ source install/setup.bash
 ros2 run deteccion_color detector_scan
 ```
 
-Chequeos útiles en una cuarta terminal:
+Igual que en la Parte 1, el robot arranca sin ningún cuadrado a la vista, así
+que hace falta manejarlo hasta ponerlo frente a uno para ver algo en
+`/scan_rojo`. Usá una cuarta terminal con teleoperación por teclado
+(instalada en el [paso 6 de la guía de
+setup](https://airclub-udesa.github.io/jar_site/setup/simulador/#6-teleoperación)
+— si no la tenés, `sudo apt install ros-humble-teleop-twist-keyboard`):
+
+```bash
+# Terminal 4 — teleop (para acercar el robot a un cuadrado)
+source install/setup.bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
+
+Al ser mecanum, además de `i`/`,` (adelante/atrás) y `j`/`l` (girar) podés
+usar las teclas en mayúscula (`I`/`J`/`L`/`U`/`O`/`M`/`<`/`>`, con Shift)
+para strafear de costado sin girar.
+
+Chequeos útiles en una quinta terminal:
 
 ```bash
 ros2 topic hz /scan                    # confirmar que el lidar publica
 ros2 topic echo /scan_rojo             # rangos finitos solo en las direcciones "rojas"
 ```
 
-En RViz, agregar un segundo display `LaserScan` apuntando a `/scan_rojo`
+En [RViz](https://docs.ros.org/en/humble/Tutorials/Intermediate/RViz/RViz-User-Guide/RViz-User-Guide.html), agregar un segundo display `LaserScan` apuntando a `/scan_rojo`
 (con otro color) es una buena forma de ver, superpuesto al scan completo,
 exactamente qué rayos está clasificando como rojos.
