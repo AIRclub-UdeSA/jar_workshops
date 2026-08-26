@@ -31,7 +31,7 @@ def generate_launch_description():
     launch_simulador = os.path.join(
         pkg_gazebo, 'launch', 'rosmaster_gazebo_fortress.launch.py')
     mundo_por_defecto = os.path.join(
-        pkg_gazebo, 'worlds', 'laberinto_simple_obs.world')
+        pkg_gazebo, 'worlds', 'laberinto_simple_victimas.world')
 
     # Este archivo todavía no existe: lo vas a armar vos desde la GUI de RViz
     # (ver el README). Hasta que lo guardes con este nombre exacto y vuelvas a

@@ -147,11 +147,23 @@ colcon build --packages-select deteccion_color
 source install/setup.bash
 ```
 
+Hay varios mundos con cuadrados de colores para detectar (sufijo
+`_victimas`). Para ver cuáles hay instalados:
+
+```bash
+cd ~/rosmaster_ws
+source install/setup.bash
+ls "$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/worlds/"
+```
+
+Podés elegir cualquiera de los `_victimas`; acá usamos
+`laberinto_simple_victimas.world` como ejemplo:
+
 ```bash
 # Terminal 2 — simulador
 source install/setup.bash
 ros2 launch yahboom_rosmaster_gazebo rosmaster_gazebo_fortress.launch.py \
-  world:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/worlds/laberinto_simple_obs.world" \
+  world:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/worlds/laberinto_simple_victimas.world" \
   motion_profile:=ideal
 ```
 
@@ -161,7 +173,7 @@ source install/setup.bash
 ros2 run deteccion_color detector
 ```
 
-El robot arranca en `laberinto_simple_obs.world` sin ningún cuadrado a la
+El robot arranca en `laberinto_simple_victimas.world` sin ningún cuadrado a la
 vista, así que hace falta manejarlo hasta ponerlo frente a uno para ver algo
 en `/rojo_detectado`. Usá una cuarta terminal con [teleoperación por
 teclado](https://index.ros.org/p/teleop_twist_keyboard/) (instalada en el
@@ -303,7 +315,7 @@ source install/setup.bash
 # Terminal 2 — simulador (igual que en la Parte 1)
 source install/setup.bash
 ros2 launch yahboom_rosmaster_gazebo rosmaster_gazebo_fortress.launch.py \
-  world:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/worlds/laberinto_simple_obs.world" \
+  world:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/worlds/laberinto_simple_victimas.world" \
   motion_profile:=ideal
 ```
 

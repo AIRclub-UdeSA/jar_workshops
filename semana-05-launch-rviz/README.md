@@ -46,7 +46,7 @@ se puso peor, porque así se corría:
 ```bash
 # Terminal 1
 ros2 launch yahboom_rosmaster_gazebo rosmaster_gazebo_fortress.launch.py \
-  world:=".../laberinto_simple_obs.world" motion_profile:=ideal
+  world:=".../laberinto_simple_victimas.world" motion_profile:=ideal
 # Terminal 2
 ros2 run deteccion_color detector --ros-args -p saturacion_min:=140.0
 # Terminal 3
