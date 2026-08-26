@@ -4,11 +4,12 @@
 
 El workshop tiene dos partes, cada una con su propio nodo:
 
-1. **`detector.py`** — mirar la cámara del robot, reconocer cuando hay un
-   cuadrado rojo en la imagen (y distinguirlo de uno azul) usando OpenCV, y
-   avisar en un tópico (`rojo_detectado`, `std_msgs/Bool`) cada vez que lo
-   ve.
-2. **`detector_scan.py`** — un segundo nodo que reutiliza la detección de
+1. **[`detector.py`](deteccion_color/deteccion_color/detector.py)** — mirar
+   la cámara del robot, reconocer cuando hay un cuadrado rojo en la imagen
+   (y distinguirlo de uno azul) usando OpenCV, y avisar en un tópico
+   (`rojo_detectado`, `std_msgs/Bool`) cada vez que lo ve.
+2. **[`detector_scan.py`](deteccion_color/deteccion_color/detector_scan.py)**
+   — un segundo nodo que reutiliza la detección de
    color de la Parte 1, pero en vez de avisar "veo rojo" sin más, proyecta
    cada punto del lidar (`/scan`) sobre la imagen de la cámara para saber
    **cuáles** de esos puntos caen sobre algo rojo. Publica en `/scan_rojo`
