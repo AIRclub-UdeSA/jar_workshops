@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>launch_rviz</name>
+  <version>0.1.0</version>
+  <description>Semana 05 del Challenge JAR: launch files y configuraciones de RViz para levantar de una sola vez el simulador, los nodos de cada workshop y la visualizacion.</description>
+  <maintainer email="rafadiaz71@gmail.com">AIR Club UdeSA</maintainer>
+  <license>MIT</license>
+
+  <!--
+    TODO 2: declarar acá las dependencias de este paquete.
+
+    Ojo que acá va <exec_depend> y no <depend>, y vale la pena entender por qué.
+    <depend> significa "lo necesito para compilar Y para correr". Este paquete
+    no compila contra nada: no tiene código propio, no importa rclpy, no usa
+    mensajes. Lo único que hace es *lanzar* cosas de otros paquetes en tiempo
+    de ejecución — y eso es exactamente lo que declara <exec_depend>.
+
+    Hacen falta tres grupos:
+      1. El sistema de launch en sí: launch y launch_ros (los que dan
+         LaunchDescription, IncludeLaunchDescription y Node).
+      2. El visualizador: rviz2.
+      3. Un <exec_depend> por cada paquete cuyos nodos lanzan tus launch files
+         — mirá los campos package= de cada Node(...) y qué launch incluís con
+         IncludeLaunchDescription. Son los dos paquetes de los workshops
+         anteriores (evasion_obstaculos, deteccion_color) más el del simulador.
+
+    Son estas de abajo — descomentalas (borrá las marcas de comentario). Como
+    siempre, te las damos como ayuda; cuando armes un paquete propio las vas a
+    tener que escribir vos mirando qué lanza tu código.
+  -->
+
+  <!--
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>evasion_obstaculos</exec_depend>
+  <exec_depend>deteccion_color</exec_depend>
+  <exec_depend>yahboom_rosmaster_gazebo</exec_depend>
+  -->
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

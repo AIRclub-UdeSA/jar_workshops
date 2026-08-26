@@ -9,3 +9,5 @@ __pycache__/
 # versión con TODOs, en el archivo sin el sufijo _gth.
 *_gth.py
 *_gth.xml
+*_gth.launch.py
+*_gth.rviz

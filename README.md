@@ -24,6 +24,7 @@ source install/setup.bash
 | 02 | `zigzag_mecanum` | Zigzag mecanum |
 | 03 | `evasion_obstaculos` | Evasión de obstáculos (máquina de estados) |
 | 04 | `deteccion_color` | Detección de color con cámara + lidar |
+| 05 | `launch_rviz` | Armá tu launch y tu RViz (sección transversal) |
 
 Ver [`PROXIMOS_WORKSHOPS.md`](PROXIMOS_WORKSHOPS.md) para el roadmap de lo que sigue.
 
