@@ -18,32 +18,16 @@ convenga que localización vaya primero. Los dejamos en el orden en que
 surgieron en la conversación para no perder el razonamiento de cada uno,
 pero la numeración final de las semanas debería resolver esta dependencia.
 
-Fuera de eso, la progresión general es: la **sección transversal de
-launch/RViz** va antes que todo lo que sigue — probablemente como
-apéndice de la [semana 01](semana-01-talkers-listeners/) (ya escrita);
-el resto son continuaciones directas de conceptos ya instalados en las
-semanas 03 y 04.
+Fuera de eso, la progresión general es: la sección transversal de
+launch/RViz iba antes que todo lo que sigue, y ya está escrita — quedó
+como su propio mini-workshop en
+[semana 05](semana-05-launch-rviz/). Los workshops de acá abajo pueden
+apoyarse en ella: en vez de reexplicar launch o RViz, alcanza con decir
+"agregá tu nodo al launch" y "agregá este display a tu RViz". El resto
+son continuaciones directas de conceptos ya instalados en las semanas 03
+y 04.
 
 ---
-
-## Sección transversal — "Armá tu launch y tu RViz"
-
-No es un workshop con tema propio, sino una sección que se escribe una
-sola vez — probablemente como apéndice de la semana 01, o como su propio
-mini-workshop corto — y después se referencia desde todos los demás.
-
-**Qué cubre:**
-
-- Qué es un archivo `launch.py`.
-- Cómo lanzar varios nodos juntos, con parámetros.
-- Cómo armar una configuración de RViz que muestre lo relevante de cada
-  workshop (el `LaserScan`, la imagen de la cámara, `/scan_rojo`, el mapa,
-  la pose del robot, etc.).
-
-**La gracia:** cada README posterior, en vez de reexplicar RViz o launch
-cada vez, simplemente dice "agregá tu nodo al launch" y "agregá este
-display a tu RViz". La skill se construye una sola vez acá y se reusa
-siempre — evita repetir la misma explicación en cada semana.
 
 ## Workshop — "Reconocer obstáculos que no están en el mapa"
 
