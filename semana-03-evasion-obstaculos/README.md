@@ -165,6 +165,18 @@ colcon build --packages-select evasion_obstaculos
 source install/setup.bash
 ```
 
+`cafe.world` no es el único mundo con obstáculos para esquivar — hay otros
+(los `maze_*`, por ejemplo). Para ver cuáles hay instalados:
+
+```bash
+cd ~/rosmaster_ws
+source install/setup.bash
+ls "$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/worlds/"
+```
+
+Podés elegir cualquiera; acá usamos `cafe.world` como ejemplo porque tiene
+muebles a distintas distancias, bueno para probar el cono de detección:
+
 ```bash
 # Terminal 2 — simulador (mundo cafe, con obstáculos)
 source install/setup.bash
