@@ -63,9 +63,10 @@ cada vez que quieran probar algo y se entiende por qué existe `ros2 launch`.
 
 ### Qué es un launch file
 
-Un launch file es un archivo de Python que **describe** qué procesos hay que
-lanzar. No es un script que se ejecuta de arriba a abajo: es una descripción
-que el sistema de launch lee y después ejecuta por su cuenta.
+Un [launch file](https://docs.ros.org/en/humble/Tutorials/Launch/Launch-Main.html)
+es un archivo de Python que **describe** qué procesos hay que lanzar. No es
+un script que se ejecuta de arriba a abajo: es una descripción que el
+sistema de launch lee y después ejecuta por su cuenta.
 
 Tres reglas que lo definen:
 
@@ -135,7 +136,7 @@ Son dos cosas distintas que se parecen, y conviene tener clara la diferencia:
 | Quién lo lee | el launch file | el nodo |
 | Cómo se declara | `DeclareLaunchArgument('x', default_value='1.0')` | `self.declare_parameter('x', 1.0)` en el nodo |
 | Cómo se pasa por consola | `ros2 launch ... x:=2.0` | `ros2 run ... --ros-args -p x:=2.0` |
-| Cómo se lee | `LaunchConfiguration('x')` | `self.get_parameter('x').value` |
+| Cómo se lee | [`LaunchConfiguration('x')`](https://docs.ros.org/en/humble/Tutorials/Intermediate/Launch/Using-Substitutions.html) | `self.get_parameter('x').value` |
 
 En general se usan juntos: se declara un argumento de launch y se lo enchufa
 como parámetro de uno o más nodos. Eso es lo que resuelve el problema del
@@ -193,7 +194,7 @@ simulador = IncludeLaunchDescription(
 )
 ```
 
-Tres detalles que los van a morder si no los tienen presentes:
+Tres detalles a tener en cuenta:
 
 - `launch_arguments` espera pares clave-valor, de ahí el **`.items()`** al
   final. Sin eso, error.
@@ -228,7 +229,8 @@ Es la confusión más común, y vale la pena sacársela de encima antes de
 cualquier otra cosa:
 
 - **Gazebo** simula. Tiene la física, los objetos, el robot; genera los datos.
-- **RViz** solo *dibuja lo que ya está publicado en los tópicos*. No simula
+- **[RViz](https://docs.ros.org/en/humble/Tutorials/Intermediate/RViz/RViz-User-Guide/RViz-User-Guide.html)**
+  solo *dibuja lo que ya está publicado en los tópicos*. No simula
   nada, no crea datos, y no puede mostrar algo que ningún nodo esté publicando.
 
 Consecuencia práctica: si algo no aparece en RViz, hay dos posibilidades bien
@@ -279,23 +281,35 @@ Los que se usan en estos workshops:
 | Display | Tópico | Para qué |
 | --- | --- | --- |
 | `LaserScan` | `/scan` | lo que ve el lidar (semana 03) |
+| `LaserScan` | `/scan_cono` | solo los rayos dentro del cono que usa el evasor para decidir choque (semana 03) |
 | `LaserScan` | `/scan_rojo` | solo los rayos que dieron contra algo rojo (semana 04) |
 | `Image` | `/cam_1/color/image_raw` | lo que ve la cámara (semana 04) |
 | `RobotModel` | `/robot_description` | el robot dibujado |
 | `TF` | — | los ejes de cada frame; sirve para entender qué está pegado a qué |
 | `Grid` | — | el piso, como referencia |
 
-Un truco que vale para toda la semana 04: poner **dos** displays `LaserScan` a
-la vez, `/scan` en gris y chico, y `/scan_rojo` en rojo y grande (subiendo
-`Size (m)` y poniendo `Style: Spheres`). Superpuestos se ve de un vistazo qué
-rayos está clasificando como rojos y cuáles no — que es exactamente la pregunta
-que uno quiere contestar cuando el detector no anda.
+Un truco que se repite en varios de estos workshops: poner **dos** displays
+`LaserScan` a la vez, uno con el `/scan` completo (rojo y chico, como ya viene
+en [`evasion.rviz`](launch_rviz/rviz/evasion.rviz)) y otro con una versión
+filtrada del mismo scan, en otro color y más grande (`Size (m)` más alto,
+`Style: Spheres`) — `/scan_cono` en semana 03, `/scan_rojo` en semana 04.
+Superpuestos se ve de un vistazo qué subconjunto de rayos está usando el nodo
+para decidir algo, sea "hay obstáculo" o "esto es rojo".
+
+Esto no es casualidad ni un agregado cosmético: es la técnica que ya vieron
+explicada en semana 03 (sección "Visualizar, no solo loguear" de ese README),
+aplicada de nuevo acá en `evasion.rviz`. La idea general vale para cualquier
+nodo que decida algo a partir de un subconjunto de datos: republicar ese
+subconjunto como su propio tópico y agregarlo a la config de RViz convierte
+una decisión que vive escondida adentro del nodo en algo que se puede mirar
+mientras el robot se mueve — y así detectar una mala calibración *antes* de
+que se note como un comportamiento raro, no después.
 
 ### El otro clásico: QoS
 
 Si un tópico *seguro* está publicando (lo confirmaron con `ros2 topic hz`) pero
 el display no muestra nada y no da error de transformada, casi siempre es
-**QoS**.
+**[QoS](https://docs.ros.org/en/lyrical/Concepts/Intermediate/About-Quality-of-Service-Settings.html)**.
 
 Los sensores publican con *Reliability* en **Best Effort** ("mandá el dato, y
 si se pierde uno, no importa, ya viene el próximo"), mientras que el default de
@@ -304,8 +318,20 @@ a un publisher Best Effort: no es un error, simplemente nunca llegan datos.
 
 La solución es abrir el display, desplegar **Topic** y poner *Reliability
 Policy* en **Best Effort**. En la config que viene con este workshop
-([`evasion.rviz`](launch_rviz/rviz/evasion.rviz)) ya está así — pueden buscar
-la línea `Reliability Policy: Best Effort` y ver a qué display pertenece.
+([`evasion.rviz`](launch_rviz/rviz/evasion.rviz)) ya está así para `/scan`
+— pueden buscar la línea `Reliability Policy: Best Effort` y ver a qué
+display pertenece.
+
+Ojo que esto no es una regla fija de "siempre Best Effort": depende de con
+qué QoS publica el nodo del otro lado. `/scan` viene del bridge de Gazebo,
+que usa QoS de sensor (Best Effort). `/scan_cono`, en cambio, lo publica
+[`evasor.py`](../semana-03-evasion-obstaculos/evasion_obstaculos/evasion_obstaculos/evasor.py)
+con `create_publisher(...)` sin tocar el perfil de QoS, así que
+queda con el default de rclpy — **Reliable**. Por eso el display de
+`/scan_cono` en `evasion.rviz` tiene `Reliability Policy: Reliable`, distinto
+del de `/scan`. La regla real es: la Reliability Policy del display tiene que
+coincidir con la del publisher, sea cual sea — Best Effort no es más
+"correcto", solo es lo que corresponde para datos crudos de sensores.
 
 ### Guardar la configuración
 
@@ -365,7 +391,7 @@ lanzar nada — no hace falta tener el simulador arriba para esto. Tienen que
 ver `world`, `distancia_choque_m` y `angulo_giro_deg` en la salida. Si dice
 que no encuentra el archivo, es el TODO 1.
 
-### [`evasion.launch.py`](launch_rviz/launch/evasion.launch.py) — semana 03
+### Semana 03 — [`evasion.launch.py`](launch_rviz/launch/evasion.launch.py)
 
 Este archivo **ya viene completo**, sin TODOs. Ábranlo y lean los comentarios
 de punta a punta antes de seguir: ahí está resuelto y explicado exactamente
@@ -373,7 +399,7 @@ el patrón que tienen que reproducir en `deteccion_color.launch.py` — un
 `Node(...)` por nodo del workshop, más RViz, todo sumado al
 `LaunchDescription` del final.
 
-### [`deteccion_color.launch.py`](launch_rviz/launch/deteccion_color.launch.py) — semana 04
+### Semana 04 — [`deteccion_color.launch.py`](launch_rviz/launch/deteccion_color.launch.py)
 
 Acá sí hay TODOs, y a propósito viene con menos ayuda: la forma es la misma
 que en `evasion.launch.py`, así que se escribe mirando ese archivo. Solo
@@ -387,7 +413,8 @@ vienen resueltos el simulador y los parámetros compartidos.
    `config_rviz` le pasan.
 6. **Sumar los tres al `LaunchDescription`.**
 
-### La configuración de RViz de la semana 04
+Y además de los tres `Node(...)`, esta semana necesita su propia config de
+RViz, que todavía no existe:
 
 7. **Armar `rviz/deteccion_color.rviz`** — este archivo **no existe**: lo
    arman ustedes desde la GUI, igual que hicieron con
@@ -409,37 +436,14 @@ vienen resueltos el simulador y los parámetros compartidos.
 
 ## Cómo correrlo
 
-Con las semanas 03 y 04 completas y buildeadas en `~/rosmaster_ws`:
+Con las semanas 03 y 04 completas, y `launch_rviz` buildeado en
+`~/rosmaster_ws`:
 
 ```bash
-# Build
+# Build (una sola vez, sirve para las dos semanas)
 cd ~/rosmaster_ws
 colcon build --packages-select launch_rviz
 source install/setup.bash
-```
-
-```bash
-# Semana 03 — simulador + evasor + RViz, todo junto
-ros2 launch launch_rviz evasion.launch.py
-```
-
-```bash
-# Semana 04 — simulador + los dos detectores + RViz
-ros2 launch launch_rviz deteccion_color.launch.py
-```
-
-Los argumentos de launch se pasan con `nombre:=valor`, igual que se venía
-haciendo con `world:=`:
-
-```bash
-ros2 launch launch_rviz evasion.launch.py distancia_choque_m:=0.4 angulo_giro_deg:=90.0
-ros2 launch launch_rviz deteccion_color.launch.py saturacion_min:=140.0
-```
-
-Para ver qué argumentos acepta un launch sin abrir el archivo:
-
-```bash
-ros2 launch launch_rviz evasion.launch.py --show-args
 ```
 
 Un `Ctrl-C` en la terminal del launch baja todos los procesos de una. Y como
@@ -447,16 +451,67 @@ Gazebo tarda unos segundos en levantar, es normal ver al principio algún error
 del nodo quejándose de que todavía no llegan datos: si a los ~15 segundos sigue
 igual, ahí sí hay algo mal.
 
-### Chequeos útiles
+### Semana 03 — evasión de obstáculos
 
 ```bash
-ros2 node list          # tienen que estar todos los nodos del launch
-ros2 topic hz /scan     # ~5 Hz — si no publica, el problema no es de RViz
+# Una sola terminal: simulador + evasor + RViz
+ros2 launch launch_rviz evasion.launch.py
+```
+
+Los argumentos de launch se pasan con `nombre:=valor`, igual que se venía
+haciendo con `world:=`:
+
+```bash
+ros2 launch launch_rviz evasion.launch.py distancia_choque_m:=0.4 angulo_giro_deg:=90.0
+```
+
+Para ver qué argumentos acepta sin abrir el archivo:
+
+```bash
+ros2 launch launch_rviz evasion.launch.py --show-args
+```
+
+Chequeos útiles, en otra terminal:
+
+```bash
+ros2 node list                          # tienen que estar todos los nodos del launch
+ros2 topic hz /scan                     # ~5 Hz — si no publica, el problema no es de RViz
+ros2 topic hz /scan_cono                # solo se publica desde adentro de hay_obstaculo()
 ros2 param get /evasor use_sim_time     # tiene que decir True
 ```
 
 Ese último es el mejor chequeo cuando algo parpadea en RViz o tf2 se queja: si
 dice `False`, falta el `use_sim_time` en ese nodo.
+
+### Semana 04 — detección de color
+
+```bash
+# Una sola terminal: simulador + detector + detector_scan + RViz
+ros2 launch launch_rviz deteccion_color.launch.py
+```
+
+```bash
+ros2 launch launch_rviz deteccion_color.launch.py saturacion_min:=140.0
+```
+
+```bash
+ros2 launch launch_rviz deteccion_color.launch.py --show-args
+```
+
+Chequeos útiles, en otra terminal:
+
+```bash
+ros2 node list                        # tienen que estar todos los nodos del launch
+ros2 topic hz /cam_1/color/image_raw  # confirma que la cámara publica
+ros2 topic hz /scan_rojo              # solo aparece mientras hay rojo a la vista
+```
+
+Reemplacen `<nombre>` por el `name` que le hayan puesto a cada `Node(...)` en
+el TODO de `deteccion_color.launch.py` para chequear su `use_sim_time`:
+
+```bash
+ros2 param get /<nombre> use_sim_time
+```
 
 ---
 

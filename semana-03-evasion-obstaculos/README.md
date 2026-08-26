@@ -70,8 +70,19 @@ seguir algunas reglas de diseño:
 - **Ser verbosos.** Loguear cada transición (`self.get_logger().info(...)`)
   ayuda muchísimo a entender en qué estado está el robot en cada momento,
   sobre todo cuando el comportamiento no es el esperado.
+- **Visualizar, no solo loguear.** Un log te dice qué pasó; RViz te deja ver
+  *por qué*. La técnica es simple: además de tomar una decisión (como
+  `hay_obstaculo()`), republicás la porción de datos que usaste para
+  tomarla, como su propio tópico — acá, qué rayos del lidar caen dentro del
+  cono de detección. Verlo dibujado en RViz (cuando llegues al workshop de la semana 5) mientras el robot se mueve deja
+  confirmar de un vistazo si `angulo_vision_deg` y `distancia_choque_m`
+  están calibrados como pensás, en vez de inferirlo indirectamente de que el
+  robot gire donde no esperabas. Es la misma idea detrás de `/scan_rojo` en
+  semana 04, y conviene tenerla presente como hábito general: cuando algo se
+  decide adentro de un nodo y no se ve, es un buen candidato para
+  republicarlo, como vamos a ver en la semana 5.
 
-`evasor.py` sigue estas cuatro reglas: `recibir_scan()` / `recibir_odom()`
+`evasor.py` sigue estas cinco reglas: `recibir_scan()` / `recibir_odom()`
 son los callbacks que solo tocan variables, y `maquina_de_estados()` es el
 timer callback que corre a `FRECUENCIA_HZ` — primero decide la transición,
 después actúa según el estado ya actualizado.
@@ -107,7 +118,10 @@ el objetivo de este workshop). Quedan 4 funciones con `TODO` para completar,
 cada una con una guía en su docstring:
 
 1. **`hay_obstaculo()`** — la percepción: mirar el `LaserScan` y decidir si
-   hay algo demasiado cerca dentro del cono frontal del robot.
+   hay algo demasiado cerca dentro del cono frontal del robot. Además de
+   devolver el bool, publica en `scan_cono` la máscara que usó para decidir
+   (con `self.publicar_scan_filtrado(...)`, ya resuelta) — así se puede ver
+   en RViz.
 2. **`avanzar()`** — un `Twist` que mueve el robot derecho hacia adelante.
 3. **`girar()`** — un `Twist` que hace girar al robot en el lugar.
 4. **`maquina_de_estados()`** — el corazón del workshop: la transición
@@ -189,6 +203,10 @@ realista) es un buen próximo paso.
 Chequeos útiles en una cuarta terminal:
 
 ```bash
-ros2 topic hz /scan   # ~5 Hz
-ros2 topic hz /odom   # ~30 Hz
+ros2 topic hz /scan        # ~5 Hz
+ros2 topic hz /odom        # ~30 Hz
+ros2 topic hz /scan_cono   # solo se publica desde adentro de hay_obstaculo()
 ```
+
+En el workshop de la [semana 05](../semana-05-launch-rviz/) vamos a poder ver
+el cono de detección dibujado (además de chequearlo por tópico) en RViz.

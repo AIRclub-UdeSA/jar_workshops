@@ -44,6 +44,11 @@ class Evasor(Node):
         self.angulo_giro_deg = self.get_parameter('angulo_giro_deg').value
 
         self.publisher_ = self.create_publisher(Twist, 'cmd_vel', 10)
+        # Publica una copia filtrada de /scan (mismos campos, pero con
+        # infinito en todo lo que la máscara descarta) solo para poder
+        # verla en RViz. No la usa ningún otro nodo ni afecta la decisión
+        # del evasor — es pura ayuda visual para debuggear hay_obstaculo().
+        self.publisher_scan_cono = self.create_publisher(LaserScan, 'scan_cono', 10)
         self.subscription = self.create_subscription(
             LaserScan, 'scan', self.recibir_scan, 10
         )
@@ -74,6 +79,29 @@ class Evasor(Node):
         """Lleva un ángulo en radianes al rango [-pi, pi]."""
         return math.atan2(math.sin(angulo), math.cos(angulo))
 
+    def publicar_scan_filtrado(self, mascara: np.ndarray):
+        """Publica en scan_cono una copia de self.ultimo_scan que solo
+        conserva los rangos donde mascara es True (el resto va a infinito,
+        como cualquier LaserScan sin retorno). Es la misma idea que van a
+        reencontrar en semana 04 con /scan_rojo: republicar una porción del
+        scan como su propio tópico es una forma barata de ver en RViz una
+        decisión que, si no, queda escondida adentro del nodo. No es el
+        objetivo de este workshop (es plomería de mensajes, no la máscara en
+        sí), por eso viene resuelta."""
+        scan = self.ultimo_scan
+        rangos_filtrados = np.where(mascara, np.array(scan.ranges), math.inf)
+        msg = LaserScan()
+        msg.header = scan.header
+        msg.angle_min = scan.angle_min
+        msg.angle_max = scan.angle_max
+        msg.angle_increment = scan.angle_increment
+        msg.time_increment = scan.time_increment
+        msg.scan_time = scan.scan_time
+        msg.range_min = scan.range_min
+        msg.range_max = scan.range_max
+        msg.ranges = rangos_filtrados.tolist()
+        self.publisher_scan_cono.publish(msg)
+
     def hay_obstaculo(self) -> bool:
         """
         TODO: devolver True si hay algo más cerca que distancia_choque_m
@@ -87,8 +115,16 @@ class Evasor(Node):
              o hacerlo vectorizado)
           4. Armar una máscara para las mediciones que caen dentro del cono,
              y otra para las que están más cerca que la distancia de choque.
-          5. Combinar ambas máscaras y devolver si hay al menos una medición
-             que las cumple a la vez.
+          5. Combinar ambas máscaras (por ejemplo `mascara = dentro_cono &
+             mas_cerca`) y decidir el resultado a partir de si hay al menos
+             una medición que las cumple a la vez.
+          6. Antes de devolver el resultado, llamá a
+             self.publicar_scan_filtrado(mascara) con esa misma máscara
+             combinada. Así, en RViz, ves en vivo exactamente qué rayos
+             están haciendo que el evasor decida "hay obstáculo" — muy útil
+             para confirmar que angulo_vision_deg y distancia_choque_m están
+             calibrados como pensás, antes de que el error se note como un
+             giro raro del robot.
         """
         pass
 
