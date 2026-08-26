@@ -42,7 +42,7 @@ está en un estado o en otro, nunca "un poco en cada uno".
 En nuestro caso, los estados son `ESTADO_AVANZAR` y `ESTADO_GIRAR`, y las
 transiciones son: `hay un obstáculo` y `ya giró lo suficiente`:
 
-![Diagrama de estados](Diagrama%20de%20estados.png)
+![Animación de la máquina de estados: a la izquierda los estados Avanzar y Girar se activan por turnos, a la derecha un robot esquemático avanza, detecta un obstáculo, gira en el lugar y retoma el avance](maquina-estados-animada.svg)
 
 ### Cómo se traduce esto a código ROS 2
 
