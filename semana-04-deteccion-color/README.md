@@ -162,8 +162,9 @@ ros2 run deteccion_color detector
 
 El robot arranca en `laberinto_simple_obs.world` sin ningún cuadrado a la
 vista, así que hace falta manejarlo hasta ponerlo frente a uno para ver algo
-en `/rojo_detectado`. Usá una cuarta terminal con teleoperación por teclado
-(instalada en el [paso 6 de la guía de
+en `/rojo_detectado`. Usá una cuarta terminal con [teleoperación por
+teclado](https://index.ros.org/p/teleop_twist_keyboard/) (instalada en el
+[paso 6 de la guía de
 setup](https://airclub-udesa.github.io/jar_site/setup/simulador/#6-teleoperación)
 — si no la tenés, `sudo apt install ros-humble-teleop-twist-keyboard`):
 
@@ -314,8 +315,9 @@ ros2 run deteccion_color detector_scan
 
 Igual que en la Parte 1, el robot arranca sin ningún cuadrado a la vista, así
 que hace falta manejarlo hasta ponerlo frente a uno para ver algo en
-`/scan_rojo`. Usá una cuarta terminal con teleoperación por teclado
-(instalada en el [paso 6 de la guía de
+`/scan_rojo`. Usá una cuarta terminal con [teleoperación por
+teclado](https://index.ros.org/p/teleop_twist_keyboard/) (instalada en el
+[paso 6 de la guía de
 setup](https://airclub-udesa.github.io/jar_site/setup/simulador/#6-teleoperación)
 — si no la tenés, `sudo apt install ros-humble-teleop-twist-keyboard`):
 
