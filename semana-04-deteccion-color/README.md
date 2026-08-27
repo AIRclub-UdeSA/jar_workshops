@@ -240,6 +240,8 @@ Con eso, cada punto del `/scan` (que viene en coordenadas polares, rango +
 al frame de la cámara, y proyectar a un pixel. Si ese pixel cae dentro de
 la máscara roja de la última imagen, ese punto del scan es "rojo".
 
+![Animación de los 360° del lidar alrededor del robot: casi todos los rayos llegan al límite del rango sin encontrar nada, salvo tres que pegan contra el cuadrado rojo y quedan prendidos, junto con los puntos correspondientes en la vista de cámara](proyeccion-lidar-camara.svg)
+
 #### Un límite importante: la altura de las marcas
 
 El lidar escanea en un plano horizontal a una altura fija. Si el cuadrado
