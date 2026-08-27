@@ -23,7 +23,7 @@ git checkout -b feature/mi-cambio
 
 # 3. Hacé tu cambio y probalo localmente
 cd ~/rosmaster_ws
-colcon build --packages-select <paquete_de_la_semana>
+colcon build --packages-select paquete_de_la_semana  # reemplazá por el paquete real
 source install/setup.bash
 
 # 4. Subí la branch y abrí un PR contra main
