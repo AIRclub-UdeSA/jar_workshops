@@ -22,17 +22,17 @@ source install/setup.bash
 
 ## Buenas primeras contribuciones
 
-- 🗺️ **Sumar un workshop del roadmap.** Ver
+- **Sumar un workshop del roadmap.** Ver
   [`PROXIMOS_WORKSHOPS.md`](PROXIMOS_WORKSHOPS.md) para lo que sigue.
-- 📖 **Mantener sincronizados README y sitio.** Cada semana tiene su
+- **Mantener sincronizados README y sitio.** Cada semana tiene su
   explicación acá (en el `README.md` de su carpeta) y en
   [jar_site](https://airclub-udesa.github.io/jar_site/workshops/). Si
   cambia el código o el enunciado de una, conviene revisar que la otra
   diga lo mismo.
-- 🧩 **Completar un README que falte.** No todas las semanas tienen uno
+- **Completar un README que falte.** No todas las semanas tienen uno
   todavía — si encontrás una carpeta sin `README.md`, es una buena
   oportunidad de sumarlo siguiendo el formato de las demás.
-- 🐛 **Fijate en los TODO de cada semana.** Los ejercicios ya resueltos por
+- **Fijate en los TODO de cada semana.** Los ejercicios ya resueltos por
   el equipo (branches viejas, soluciones de referencia) suelen revelar
   ambigüedades en la consigna o en los docstrings de guía — si algo te
   costó entender resolviéndolo, probablemente valga la pena aclararlo acá.
