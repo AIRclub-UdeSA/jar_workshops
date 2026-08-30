@@ -113,15 +113,19 @@ class Localizador(Node):
         self.create_subscription(OccupancyGrid, 'likelihood_map', self.recibir_campo, qos_mapa)
         self.create_subscription(LaserScan, 'scan', self.recibir_scan, 10)
         self.create_subscription(Odometry, 'odom', self.recibir_odom, 10)
+        self.create_subscription(Odometry, 'ground_truth/odom', self.recibir_ground_truth, 10)
 
         self.pub_particulas = self.create_publisher(PoseArray, 'particlecloud', 10)
         self.pub_camino_odom = self.create_publisher(Path, 'camino_odom', 10)
         self.pub_camino_corregido = self.create_publisher(Path, 'camino_corregido', 10)
+        self.pub_camino_real = self.create_publisher(Path, 'camino_real', 10)
 
         self.camino_odom_msg = Path()
         self.camino_odom_msg.header.frame_id = self.map_frame
         self.camino_corregido_msg = Path()
         self.camino_corregido_msg.header.frame_id = self.map_frame
+        self.camino_real_msg = Path()
+        self.camino_real_msg.header.frame_id = self.map_frame
 
     # ---------- callbacks ----------
     # Notá que acá nos apartamos de la convención de semanas anteriores de
@@ -137,6 +141,17 @@ class Localizador(Node):
             self.campo = np.array(msg.data, dtype=np.float64).reshape((alto, ancho))
             self.info_mapa = msg.info
             self.get_logger().info('Campo de verosimilitud recibido.')
+
+    def recibir_ground_truth(self, msg: Odometry):
+        """Solo para comparar visualmente en RViz -- Gazebo publica la pose
+        real del robot en `/ground_truth/odom` (mismo frame que `map`, ver
+        README). Nunca se usa dentro del filtro, ni existiría en el robot
+        físico: es una ventaja exclusiva del simulador para verificar qué
+        tan bien está corrigiendo el filtro."""
+        x = msg.pose.pose.position.x
+        y = msg.pose.pose.position.y
+        theta = self.yaw_de_quaternion(msg.pose.pose.orientation)
+        self.acumular_camino(self.camino_real_msg, self.pub_camino_real, x, y, theta)
 
     def recibir_odom(self, msg: Odometry):
         """Predicción: descompone el movimiento desde la última odometría en
