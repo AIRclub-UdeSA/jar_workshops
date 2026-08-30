@@ -184,11 +184,12 @@ esto corre igual desde cualquier lado):
 ls "$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/maps/"
 ```
 
-De esos, el que corresponde al mundo de este workshop es
-`laberinto_simple.yaml` — los otros (`cafe_world_map.yaml`,
-`house_world_map.yaml`) son mapas de otros mundos, no de
-`laberinto_simple.world`, así que no sirven acá aunque estén en la misma
-carpeta. Es el que usamos en todos los comandos de esta semana:
+Ojo: cada mapa corresponde a un mundo específico (el `origin` de cada
+`.yaml` está calculado para ese mundo en particular) — **no son
+intercambiables**. Como el mundo de este workshop es
+`laberinto_simple.world`, el mapa que hay que usar es, sí o sí,
+`laberinto_simple.yaml`; los otros dos son de otros mundos y no van a
+alinear con lo que ve el lidar acá.
 
 ```bash
 # Terminal 1
