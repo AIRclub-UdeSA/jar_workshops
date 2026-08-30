@@ -124,9 +124,18 @@ Con el paquete creado:
 
 ```bash
 cd ~/rosmaster_ws
-colcon build --packages-select localizacion
+colcon build --packages-select localizacion --symlink-install
 source install/setup.bash
 ```
+
+El `--symlink-install` es importante acá: sin él, cada vez que edites uno
+de los TODO de `campo_verosimilitud.py`/`localizador.py` (que vas a hacer
+muchas veces, no una sola) tendrías que correr `colcon build` de nuevo
+para que el cambio se vea al ejecutar `ros2 run`. Con `--symlink-install`,
+el paquete instalado queda como un symlink a tu código fuente: editás,
+guardás, y ya está — no hace falta rebuildear entre cada prueba. (Si más
+adelante cambiás `setup.py` para sumar un `entry_point` nuevo, a eso sí
+hay que volver a buildearlo.)
 
 ---
 
@@ -166,7 +175,20 @@ recibiendo el último publicado). Queda **una función con `TODO`**:
 ### Probarlo solo (antes de tocar el filtro)
 
 No hace falta el simulador corriendo para esta parte — alcanza con
-`map_server` sirviendo el mapa real:
+`map_server` sirviendo el mapa real. `yahboom_rosmaster` trae varios
+mapas de ocupación ya generados en `maps/`; para ver cuáles hay
+instalados (sin necesidad de tener el repo clonado en una ruta fija —
+esto corre igual desde cualquier lado):
+
+```bash
+ls "$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/maps/"
+```
+
+De esos, el que corresponde al mundo de este workshop es
+`laberinto_simple.yaml` — los otros (`cafe_world_map.yaml`,
+`house_world_map.yaml`) son mapas de otros mundos, no de
+`laberinto_simple.world`, así que no sirven acá aunque estén en la misma
+carpeta. Es el que usamos en todos los comandos de esta semana:
 
 ```bash
 # Terminal 1
@@ -251,9 +273,12 @@ corrija nada), antes de meterte con `pesar_particulas()`.
 
 Extendé el launch que armaste en semana 05 (o corré cada terminal a mano)
 sumando: el simulador con `laberinto_simple.world`, `map_server` +
-`nav2_lifecycle_manager` (igual que en la Parte 1, apuntando al mismo
-`.yaml`), y los dos nodos de este paquete. Ejemplo mínimo, terminal por
-terminal, para probarlo antes de meterlo en tu launch:
+`nav2_lifecycle_manager` apuntando a `laberinto_simple.yaml` (mismo mapa
+que en la Parte 1 — de los varios `.yaml` en
+`maps/`, ese es el que corresponde a este mundo; ver `Probarlo solo` más
+arriba si querés listarlos de nuevo), y los dos nodos de este paquete.
+Ejemplo mínimo, terminal por terminal, para probarlo antes de meterlo en
+tu launch:
 
 ```bash
 # Terminal 1 — simulador
