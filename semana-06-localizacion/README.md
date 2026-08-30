@@ -27,7 +27,8 @@ launch/RViz propio armado en la 05.
 
 ## Teoría: `map`, `odom`, `base_link`, y por qué la odometría deriva sola
 
-Un robot real tiene (al menos) tres frames relevantes, encadenados:
+Un robot real tiene (al menos) tres frames relevantes, encadenados
+(convención [REP 105](https://www.ros.org/reps/rep-0105.html)):
 
 - **`base_link`** (acá, `base_footprint`): el propio robot. Todo lo demás
   se ubica relativo a él.
@@ -100,7 +101,7 @@ dato crudo que después vas a convertir en campo de verosimilitud (Parte
 
 > [!WARNING]
 > **Si el display `Map` queda vacío (gris uniforme), es un problema de
-> QoS, no de que algo esté roto.** `map_server` publica `/map` con
+> [QoS](https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html), no de que algo esté roto.** `map_server` publica `/map` con
 > *durability* **Transient Local** — un mapa no cambia todo el tiempo, así
 > que en vez de repetirlo publica una vez y "retiene" ese último mensaje
 > para quien se suscriba después. El display `Map` de RViz2 no siempre
@@ -118,7 +119,8 @@ dato crudo que después vas a convertir en campo de verosimilitud (Parte
 Con `yahboom_rosmaster` y `jar_workshops` clonados en `~/rosmaster_ws/src`
 (ver la [guía de setup](https://airclub-udesa.github.io/jar_site/setup/simulador/)):
 
-`ros2 pkg create` es el comando que arma, de cero, la carpeta de un
+[`ros2 pkg create`](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Creating-Your-First-ROS2-Package.html)
+es el comando que arma, de cero, la carpeta de un
 paquete ROS 2 — hasta ahora esa carpeta ya venía clonada del repo
 (semanas 01-05); acá la generás vos. Los flags que le pasamos:
 
@@ -290,13 +292,15 @@ una pose inicial conocida — **no** es localización global, ver el desafío
 extra), la conversión del `/scan` a puntos en `base_footprint` (reusando
 `tf2`, mismo patrón que `detector_scan.py` de semana 04), la estimación de
 pose por promedio, la publicación de la nube de partículas
-(`geometry_msgs/PoseArray` en el tópico `particlecloud`) y de **tres**
+([`geometry_msgs/PoseArray`](https://docs.ros2.org/latest/api/geometry_msgs/msg/PoseArray.html)
+en el tópico `particlecloud`) y de **tres**
 caminos (`camino_odom` sin corregir, `camino_corregido` con el filtro, y
 `camino_real` — la pose real que publica Gazebo en `/ground_truth/odom`,
 una ventaja exclusiva del simulador que no existiría en el robot físico,
 para poder comparar visualmente qué tan bien corrige el filtro), y la
 publicación de la transformada `map → odom` por
-`tf2_ros.TransformBroadcaster`. Quedan **3 funciones con `TODO`**, el
+[`tf2_ros.TransformBroadcaster`](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Tf2-Main.html).
+Quedan **3 funciones con `TODO`**, el
 corazón del filtro:
 
 1. **`mover_particulas()`** — el modelo de movimiento (predicción).
@@ -379,7 +383,8 @@ rviz2 -d <ruta a tu config de semana 05>
 Antes de abrirlo, agregale a esa config los displays nuevos que hacen
 falta esta semana: `Map` (`/map` y `/likelihood_map`, con `Durability
 Policy: Transient Local` en el QoS de cada uno — ver el Paso 0),
-`PoseArray` (`particlecloud`), y **tres** `Path` (`camino_odom`,
+`PoseArray` (`particlecloud`), y **tres**
+[`Path`](https://docs.ros2.org/latest/api/nav_msgs/msg/Path.html) (`camino_odom`,
 `camino_corregido`, `camino_real` — cada uno con su propio color) —
 además del `LaserScan` y `TF` que ya tenías. Una vez que tengas todo esto
 probado y andando, es el momento de meter estas seis terminales en tu
@@ -407,8 +412,9 @@ mirá en RViz:
   laberinto, sin importar cuánto tiempo lleve andando.
 
 > [!WARNING]
-> Si arrancás el filtro *antes* de que `map_server` esté activo (lifecycle
-> `active`), `/likelihood_map` nunca llega y las partículas no corrigen
+> Si arrancás el filtro *antes* de que `map_server` esté activo
+> ([lifecycle](https://design.ros2.org/articles/node_lifecycle.html) `active`),
+> `/likelihood_map` nunca llega y las partículas no corrigen
 > nunca — quedate solo con el ruido de la predicción. Confirmá primero con
 > `ros2 topic echo /likelihood_map --once` que el campo ya está publicado.
 

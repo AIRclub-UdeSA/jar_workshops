@@ -25,6 +25,7 @@ source install/setup.bash
 | 03 | `evasion_obstaculos` | Evasión de obstáculos (máquina de estados) |
 | 04 | `deteccion_color` | Detección de color con cámara + lidar |
 | 05 | `launch_rviz` | Armá tu launch y tu RViz (sección transversal) |
+| 06 | `localizacion` | Localización en el mapa con filtro de partículas |
 
 Ver [`PROXIMOS_WORKSHOPS.md`](PROXIMOS_WORKSHOPS.md) para el roadmap de lo que sigue.
 
