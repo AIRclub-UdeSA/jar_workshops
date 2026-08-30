@@ -8,9 +8,7 @@ posición en la competencia hace falta algo más: saber dónde está el robot
 **dentro del mapa**. Este workshop le da al robot una pose confiable en el
 frame `map`, corrigiendo el *drift* de la odometría contra el mapa conocido
 usando el lidar — con un **filtro de partículas (Monte Carlo
-Localization)** hecho a mano, no con AMCL como caja negra. Es, de hecho, el
-mismo algoritmo que corre adentro de AMCL: acá lo armás vos mismo para
-entender qué hace por dentro.
+Localization)**.
 
 A diferencia de las semanas 01-05, esta vez **no recibís un paquete ROS ya
 armado**: creás el tuyo propio desde cero por primera vez, igual que ya
@@ -75,6 +73,25 @@ partículas.
 Con `yahboom_rosmaster` y `jar_workshops` clonados en `~/rosmaster_ws/src`
 (ver la [guía de setup](https://airclub-udesa.github.io/jar_site/setup/simulador/)):
 
+`ros2 pkg create` es el comando que arma, de cero, la carpeta de un
+paquete ROS 2 — hasta ahora esa carpeta ya venía clonada del repo
+(semanas 01-05); acá la generás vos. Los flags que le pasamos:
+
+- **`--build-type ament_python`**: le dice que es un paquete de Python
+  puro (la misma clase de paquete que usaron todas las semanas
+  anteriores) — la alternativa, `ament_cmake`, es para paquetes en C++.
+- **`--dependencies ...`**: cada nombre de la lista es un paquete ROS que
+  tu código va a importar; se completan solos como `<depend>` en
+  `package.xml` para que no los tengas que escribir a mano (igual, en el
+  paso 3 de más abajo vas a tener que sumar uno más).
+- **El último argumento (`localizacion`)** es el **nombre del paquete**:
+  así se va a llamar la carpeta que se crea, y así lo vas a invocar
+  después (`ros2 run localizacion <ejecutable>`). No es un valor mágico —
+  lo elegimos nosotros porque describe el tema de la semana. La
+  convención en ROS 2 es `snake_case` (minúsculas, guiones bajos, sin
+  espacios ni mayúsculas) y un nombre corto que diga qué hace el paquete,
+  mismo criterio que ya viste en `deteccion_color` o `evasion_obstaculos`.
+
 ```bash
 # Terminal 1
 cd ~/rosmaster_ws/src/jar_workshops/semana-06-localizacion
@@ -120,7 +137,7 @@ source install/setup.bash
 Comparar el lidar contra el mapa "en vivo" (simular qué vería cada
 partícula, rayo por rayo, contra la grilla) es correcto pero carísimo en
 Python puro con cientos de partículas corriendo en tiempo real. La
-solución estándar (la misma que usa AMCL por default) es precalcular **una
+solución estándar es precalcular **una
 sola vez**, apenas llega el mapa, un "campo de verosimilitud": para cada
 celda del mapa, qué tan probable es que un rayo del lidar termine ahí. Las
 celdas ocupadas (y sus alrededores inmediatos) tienen probabilidad alta;
@@ -183,9 +200,7 @@ laberinto, en vez de líneas duras.
 - **Predicción**: el movimiento entre dos lecturas de `/odom` se descompone
   en *rotar hacia el rumbo del desplazamiento* (`rot1`), *avanzar*
   (`trans`), *rotar lo que falte* (`rot2`) — el modelo de movimiento
-  odométrico estándar (Thrun, *Probabilistic Robotics* — el mismo que
-  viste en la práctica de filtros de partículas de la facultad, si hiciste
-  esa materia). A cada componente se le suma ruido gaussiano proporcional a
+  odométrico estándar (Thrun, *Probabilistic Robotics*). A cada componente se le suma ruido gaussiano proporcional a
   su propia magnitud, y se aplica a las N partículas a la vez.
 - **Corrección**: para cada partícula, transformar los puntos del `/scan`
   a su pose, mirar qué dice `/likelihood_map` en esa posición, y combinar
@@ -207,8 +222,7 @@ una pose inicial conocida — **no** es localización global, ver el desafío
 extra), la conversión del `/scan` a puntos en `base_footprint` (reusando
 `tf2`, mismo patrón que `detector_scan.py` de semana 04), la estimación de
 pose por promedio, la publicación de la nube de partículas
-(`geometry_msgs/PoseArray` en el tópico `particlecloud` — mismo nombre que
-usa AMCL) y de dos caminos (`camino_odom` sin corregir, `camino_corregido`
+(`geometry_msgs/PoseArray` en el tópico `particlecloud`) y de dos caminos (`camino_odom` sin corregir, `camino_corregido`
 con el filtro), y la publicación de la transformada `map → odom` por
 `tf2_ros.TransformBroadcaster`. Quedan **3 funciones con `TODO`**, el
 corazón del filtro:
@@ -307,7 +321,7 @@ mirá en RViz:
 
 Con `map → odom` publicada, cualquier nodo (RViz, un futuro planificador)
 puede preguntar "¿dónde está el robot en el mapa?" sin saber nada de cómo
-se corrigió — exactamente el mismo contrato que ofrece AMCL. La diferencia
+se corrigió. La diferencia
 es que ahora sabés qué hay adentro: un conjunto de hipótesis, un modelo de
 cómo se mueven, y un modelo de qué tan bien explican lo que ve el lidar.
 Ese mismo patrón (varias hipótesis, pesarlas contra una observación,
