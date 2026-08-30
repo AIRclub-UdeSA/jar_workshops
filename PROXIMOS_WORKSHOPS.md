@@ -10,13 +10,13 @@ y se borra de acá.
 
 El orden en que están listados abajo no es arbitrario, pero tiene una
 excepción a tener en cuenta: **"Reconocer obstáculos que no están en el
-mapa"** se lista antes que **"Dónde estoy: localización"**, aunque en
-realidad depende de él — comparar el `/scan` contra el mapa por
-raycasting necesita saber la pose del robot en `map`, que es justamente lo
-que da el workshop de localización. En términos de currícula probablemente
-convenga que localización vaya primero. Los dejamos en el orden en que
+mapa"** se lista antes que la localización, aunque en realidad depende de
+ella — comparar el `/scan` contra el mapa por raycasting necesita saber la
+pose del robot en `map`, que es justamente lo que da
+[semana 06](semana-06-localizacion/). Los dejamos en el orden en que
 surgieron en la conversación para no perder el razonamiento de cada uno,
-pero la numeración final de las semanas debería resolver esta dependencia.
+pero en currícula real semana 06 ya resuelve esa dependencia antes de
+llegar a este workshop.
 
 Fuera de eso, la progresión general es: la sección transversal de
 launch/RViz iba antes que todo lo que sigue, y ya está escrita — quedó
@@ -46,36 +46,17 @@ coinciden con el mapa.
 **Cómo se relaciona con lo que ya existe:** es el mismo patrón de
 semana 04 (filtrar un scan según un criterio y publicar el resultado),
 pero acá el criterio es geométrico contra un mapa en vez de visual contra
-una máscara de color. **Depende de tener pose en `map`** — ver la nota de
-orden más arriba.
-
-## Workshop — "Dónde estoy: localización en el mapa"
-
-**Por qué hace falta:** es el que hoy falta y es crítico. Todo lo hecho
-hasta acá (esquivar, detectar rojo, detectar obstáculos nuevos) vive en el
-frame del robot o del lidar, pero para reportar una posición en la
-competencia hace falta saber dónde está el robot dentro del `map`.
-
-**Qué cubre:**
-
-- La diferencia entre los frames `map`, `odom` y `base_link`.
-- Por qué la odometría sola deriva con el tiempo.
-- Cómo usar algo como AMCL (o una versión más simple con
-  partículas/ICP, si se quiere evitar la caja negra) para corregir la
-  pose contra el mapa conocido usando el lidar.
-
-**Resultado:** el robot tiene una pose confiable en `map` en todo
-momento — el ingrediente que le faltaba a los dos workshops de arriba y
-abajo.
+una máscara de color. **Depende de tener pose en `map`** — ver
+[semana 06](semana-06-localizacion/).
 
 ## Workshop — "De 'lo veo ahí' a una coordenada en el mapa"
 
-**Por qué hace falta:** es el eslabón que conecta semana 04 con el
-workshop de localización. Hoy semana 04 da distancia y ángulo al cuadrado
-rojo relativos al robot, pero eso no sirve para reportar una posición fija
-si el robot se mueve.
+**Por qué hace falta:** es el eslabón que conecta semana 04 con
+[semana 06](semana-06-localizacion/). Hoy semana 04 da distancia y ángulo
+al cuadrado rojo relativos al robot, pero eso no sirve para reportar una
+posición fija si el robot se mueve.
 
-**Qué cubre:** tomar la pose del robot en `map` (la del workshop anterior)
+**Qué cubre:** tomar la pose del robot en `map` (la de semana 06)
 más la detección relativa de semana 04, hacer la transformación
 geométrica correspondiente, y obtener una coordenada (x, y) en el frame
 del mapa.
@@ -112,8 +93,8 @@ en vez de convivir con ellos.
 
 **Qué cubre:**
 
-- **AMCL** reemplaza la localización manual de la semana de "Dónde
-  estoy".
+- **AMCL** reemplaza el filtro de partículas manual de
+  [semana 06](semana-06-localizacion/).
 - El **costmap global + local** (mapa estático + ventana rodante de datos
   vivos del lidar) reemplaza tanto la evasión de obstáculos de semana 03
   como el workshop de "obstáculos que no están en el mapa" — la
