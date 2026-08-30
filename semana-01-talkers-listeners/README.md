@@ -18,7 +18,7 @@ mismo topic.
 
 ### ¿Qué es un nodo?
 
-Un [**nodo**](https://docs.ros.org/en/lyrical/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Nodes/Understanding-ROS2-Nodes.html)
+Un [**nodo**](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Nodes/Understanding-ROS2-Nodes.html)
 es un programa que corre dentro de ROS 2 y puede hablar con otros nodos.
 En un robot real puede haber decenas corriendo a la vez — uno que lee el
 lidar, otro la cámara, otro que mueve las ruedas — cada uno un proceso
@@ -39,7 +39,7 @@ class Talker(Node):
 ### Tópicos, publishers y subscribers
 
 Los nodos no se conocen entre sí directamente: se comunican a través de
-[**topics**](https://docs.ros.org/en/lyrical/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Topics/Understanding-ROS2-Topics.html),
+[**topics**](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Topics/Understanding-ROS2-Topics.html),
 canales con nombre (acá, `mensaje`) a los que unos publican y otros se
 suscriben, sin necesitarse mutuamente para funcionar.
 

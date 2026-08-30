@@ -171,7 +171,7 @@ rayo, ¿qué píxel le tocaría?", y mirar si ese píxel es rojo.
 Para proyectar un punto 3D a un píxel hacen falta dos cosas: dónde está
 la cámara respecto del lidar (la transformada entre `laser_link` y el
 frame óptico de la cámara, que `robot_state_publisher` ya publica en
-[tf2](https://docs.ros.org/en/lyrical/Tutorials/Intermediate/Tf2/Tf2-Main.html)
+[tf2](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Tf2-Main.html)
 a partir del URDF — no hace falta medirla a mano), y el modelo *pinhole*
 de la cámara (`u = fx * x/z + cx`, `v = fy * y/z + cy`, con los
 intrínsecos publicados en `sensor_msgs/CameraInfo`). Con eso, cada punto
