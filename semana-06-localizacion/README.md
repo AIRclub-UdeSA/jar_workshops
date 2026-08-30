@@ -184,17 +184,15 @@ esto corre igual desde cualquier lado):
 ls "$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/maps/"
 ```
 
-Acá usamos `laberinto_simple.yaml` como ejemplo porque, de los mundos que
-existen hoy, es el único con un mapa ya generado y verificado que
-corresponde a él. A medida que el repo sume mapas nuevos (ver la issue de
-mapeo del roadmap), vas a poder correr este mismo workshop contra
-cualquier otro par mundo+mapa — pero el par tiene que corresponderse: el
-`.yaml` que le pases a `map_server` tiene que ser el que se generó
-mapeando justamente el `.world` que estás corriendo, no cualquiera de la
-lista de arriba. Si usás un mapa distinto de `laberinto_simple`, además
-**no asumas** que `pose_inicial_x/y/theta` sigue siendo `(0,0,0)` —
-confirmalo para ese mapa (o pasá los valores correctos por parámetro) antes
-de dar por buena la corrección del filtro.
+Acá usamos `laberinto_simple.yaml` como ejemplo, pero podés correr este
+mismo workshop contra cualquier otro par mundo+mapa de la lista de
+arriba — el requisito es que el par se corresponda: el `.yaml` que le
+pases a `map_server` tiene que ser el que se generó mapeando justamente
+el `.world` que estás corriendo, no cualquiera de la lista. Si usás un
+mapa distinto de `laberinto_simple`, además **no asumas** que
+`pose_inicial_x/y/theta` sigue siendo `(0,0,0)` — confirmalo para ese
+mapa (o pasá los valores correctos por parámetro) antes de dar por buena
+la corrección del filtro.
 
 ```bash
 # Terminal 1
