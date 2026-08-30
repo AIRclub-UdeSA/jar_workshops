@@ -188,11 +188,7 @@ Acá usamos `laberinto_simple.yaml` como ejemplo, pero podés correr este
 mismo workshop contra cualquier otro par mundo+mapa de la lista de
 arriba — el requisito es que el par se corresponda: el `.yaml` que le
 pases a `map_server` tiene que ser el que se generó mapeando justamente
-el `.world` que estás corriendo, no cualquiera de la lista. Si usás un
-mapa distinto de `laberinto_simple`, además **no asumas** que
-`pose_inicial_x/y/theta` sigue siendo `(0,0,0)` — confirmalo para ese
-mapa (o pasá los valores correctos por parámetro) antes de dar por buena
-la corrección del filtro.
+el `.world` que estás corriendo, no cualquiera de la lista.
 
 ```bash
 # Terminal 1
