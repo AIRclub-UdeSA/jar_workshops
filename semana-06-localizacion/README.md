@@ -290,7 +290,7 @@ extendida.
 ```bash
 # Terminal 1 — simulador
 source ~/rosmaster_ws/install/setup.bash
-ros2 launch yahboom_rosmaster_gazebo rosmaster_gazebo_fortress.launch.py \
+ros2 launch yahboom_rosmaster_bringup rosmaster_x3_sim.launch.py \
   world:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/worlds/laberinto_simple.world" \
   motion_profile:=ideal rviz:=false
 ```
