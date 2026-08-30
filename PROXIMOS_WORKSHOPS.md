@@ -98,3 +98,39 @@ cuánto tiempo haya para el temario):
   no visitado.
 - Frontier exploration.
 - Usar Nav2 directamente para que planifique.
+
+## Workshop — "Nav2: reemplazar lo manual por el stack real"
+
+**Por qué hace falta:** las últimas cuatro semanas (evasión de
+obstáculos, localización, obstáculos que no están en el mapa,
+exploración) se resolvieron a mano para entender qué hace cada pieza por
+dentro. Pero eso mismo — localización, costmaps y planificación — es
+justo lo que resuelve [Nav2](https://docs.nav2.org/) de fábrica, de forma
+mucho más robusta que las versiones caseras. Este workshop es el punto de
+"graduación": de acá en adelante, Nav2 reemplaza a los módulos manuales
+en vez de convivir con ellos.
+
+**Qué cubre:**
+
+- **AMCL** reemplaza la localización manual de la semana de "Dónde
+  estoy".
+- El **costmap global + local** (mapa estático + ventana rodante de datos
+  vivos del lidar) reemplaza tanto la evasión de obstáculos de semana 03
+  como el workshop de "obstáculos que no están en el mapa" — la
+  superposición de las dos capas es exactamente ese problema, ya resuelto.
+- Un **controller** (DWB o regulated pure pursuit) reemplaza la máquina de
+  estados de evasión reactiva.
+- **`NavigateToPose`** (o `explore_lite` si se quiere explorar sin un
+  objetivo fijo) reemplaza la exploración manual por waypoints.
+
+**Qué NO reemplaza:** el workshop de "De 'lo veo ahí' a una coordenada en
+el mapa" (detección de víctimas + transformada a `map`) sigue igual —
+es lógica propia de la tarea de búsqueda y rescate, Nav2 no tiene opinión
+sobre eso. De acá en más, ese nodo corre sobre el stack de Nav2 en vez de
+sobre la pila manual.
+
+**Cómo se relaciona con lo que ya existe:** depende de haber hecho las
+cuatro semanas manuales anteriores — la comparación directa ("esto que
+armé en cuatro semanas, Nav2 lo arma con configuración") es el punto
+pedagógico central, así que este workshop va después de todas ellas, no
+antes.
