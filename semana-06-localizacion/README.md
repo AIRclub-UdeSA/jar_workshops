@@ -280,12 +280,19 @@ arriba si querés listarlos de nuevo), y los dos nodos de este paquete.
 Ejemplo mínimo, terminal por terminal, para probarlo antes de meterlo en
 tu launch:
 
+Ojo con el `rviz:=false` de la Terminal 1: el launch del simulador trae
+su propio RViz por default (`rviz:=true`), y ese no tiene configurados
+los displays nuevos que necesitás acá (`Map`, `PoseArray`,
+`Path` — ver más abajo). Si lo dejás en `true`, te queda un RViz de
+sobra sin lo que necesitás ver, en vez de tu config de semana 05
+extendida.
+
 ```bash
 # Terminal 1 — simulador
 source ~/rosmaster_ws/install/setup.bash
 ros2 launch yahboom_rosmaster_gazebo rosmaster_gazebo_fortress.launch.py \
   world:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/worlds/laberinto_simple.world" \
-  motion_profile:=ideal
+  motion_profile:=ideal rviz:=false
 ```
 
 ```bash
@@ -313,10 +320,19 @@ source ~/rosmaster_ws/install/setup.bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
-En tu config de RViz (la de semana 05), agregá displays para: `Map`
-(`/map` y `/likelihood_map`), `PoseArray` (`particlecloud`), y dos `Path`
-(`camino_odom` en un color, `camino_corregido` en otro) — además del
-`LaserScan` y `TF` que ya tenías.
+```bash
+# Terminal 6 — tu RViz
+source ~/rosmaster_ws/install/setup.bash
+rviz2 -d <ruta a tu config de semana 05>
+```
+
+Antes de abrirlo, agregale a esa config los displays nuevos que hacen
+falta esta semana: `Map` (`/map` y `/likelihood_map`), `PoseArray`
+(`particlecloud`), y dos `Path` (`camino_odom` en un color,
+`camino_corregido` en otro) — además del `LaserScan` y `TF` que ya
+tenías. Una vez que tengas todo esto probado y andando, es el momento de
+meter estas seis terminales en tu propio launch de semana 05 (incluyendo
+tu `Node` de `rviz2` con esta config ya actualizada).
 
 ---
 
