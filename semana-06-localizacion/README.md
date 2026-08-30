@@ -68,6 +68,51 @@ partículas.
 
 ---
 
+## Paso 0: mirá el mapa antes de escribir código
+
+Antes de meterte con el paquete o el filtro, vale la pena ver **qué es**
+el mapa que vas a comparar contra el lidar toda esta semana — no hace
+falta el simulador ni ningún código propio, alcanza con `map_server`:
+
+```bash
+# Terminal 1
+source ~/rosmaster_ws/install/setup.bash
+ros2 run nav2_map_server map_server --ros-args -p yaml_filename:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/maps/laberinto_simple.yaml"
+```
+
+```bash
+# Terminal 2
+source ~/rosmaster_ws/install/setup.bash
+ros2 run nav2_lifecycle_manager lifecycle_manager --ros-args -p autostart:=true -p node_names:="['map_server']"
+```
+
+```bash
+# Terminal 3
+source ~/rosmaster_ws/install/setup.bash
+rviz2
+```
+
+`Fixed Frame` en `map`, agregá un display `Map` apuntando a `/map`. Es la
+misma grilla del laberinto de `laberinto_simple.world`, vista desde
+arriba: blanco = libre, negro = ocupado, gris = desconocido — este es el
+dato crudo que después vas a convertir en campo de verosimilitud (Parte
+1) y contra el que se va a corregir la pose (Parte 2).
+
+> [!WARNING]
+> **Si el display `Map` queda vacío (gris uniforme), es un problema de
+> QoS, no de que algo esté roto.** `map_server` publica `/map` con
+> *durability* **Transient Local** — un mapa no cambia todo el tiempo, así
+> que en vez de repetirlo publica una vez y "retiene" ese último mensaje
+> para quien se suscriba después. El display `Map` de RViz2 no siempre
+> negocia esa durability solo: si arrancaste RViz *después* de `map_server`
+> (que va a ser casi siempre, porque `map_server` solo publica una vez al
+> activarse), te quedás suscripto pero sin recibir el mensaje retenido.
+> **Arreglo:** en el panel del display `Map`, abrí la sección `QoS` y
+> poné `Durability Policy` en **`Transient Local`** (en vez de
+> `System Default`/`Volatile`). Mismo ajuste te va a hacer falta más
+> adelante para el display `Map` de `/likelihood_map` — es el mismo tipo
+> de publisher.
+
 ## Antes de empezar: creá tu paquete
 
 Con `yahboom_rosmaster` y `jar_workshops` clonados en `~/rosmaster_ws/src`
@@ -208,10 +253,11 @@ source ~/rosmaster_ws/install/setup.bash
 ros2 run localizacion campo_verosimilitud
 ```
 
-En RViz, agregá un display `Map` apuntando a `/likelihood_map` (con un
-`Color Scheme` que muestre gradiente, no solo blanco/negro). Si está bien,
-vas a ver un "halo" difuminado creciendo alrededor de cada pared del
-laberinto, en vez de líneas duras.
+En RViz, agregá un display `Map` apuntando a `/likelihood_map` — mismo
+ajuste de QoS que en el Paso 0 (`Durability Policy: Transient Local`), y
+de paso probá cambiarle el `Color Scheme` a uno con gradiente, no solo
+blanco/negro. Si está bien, vas a ver un "halo" difuminado creciendo
+alrededor de cada pared del laberinto, en vez de líneas duras.
 
 ---
 
@@ -244,8 +290,12 @@ una pose inicial conocida — **no** es localización global, ver el desafío
 extra), la conversión del `/scan` a puntos en `base_footprint` (reusando
 `tf2`, mismo patrón que `detector_scan.py` de semana 04), la estimación de
 pose por promedio, la publicación de la nube de partículas
-(`geometry_msgs/PoseArray` en el tópico `particlecloud`) y de dos caminos (`camino_odom` sin corregir, `camino_corregido`
-con el filtro), y la publicación de la transformada `map → odom` por
+(`geometry_msgs/PoseArray` en el tópico `particlecloud`) y de **tres**
+caminos (`camino_odom` sin corregir, `camino_corregido` con el filtro, y
+`camino_real` — la pose real que publica Gazebo en `/ground_truth/odom`,
+una ventaja exclusiva del simulador que no existiría en el robot físico,
+para poder comparar visualmente qué tan bien corrige el filtro), y la
+publicación de la transformada `map → odom` por
 `tf2_ros.TransformBroadcaster`. Quedan **3 funciones con `TODO`**, el
 corazón del filtro:
 
@@ -327,12 +377,14 @@ rviz2 -d <ruta a tu config de semana 05>
 ```
 
 Antes de abrirlo, agregale a esa config los displays nuevos que hacen
-falta esta semana: `Map` (`/map` y `/likelihood_map`), `PoseArray`
-(`particlecloud`), y dos `Path` (`camino_odom` en un color,
-`camino_corregido` en otro) — además del `LaserScan` y `TF` que ya
-tenías. Una vez que tengas todo esto probado y andando, es el momento de
-meter estas seis terminales en tu propio launch de semana 05 (incluyendo
-tu `Node` de `rviz2` con esta config ya actualizada).
+falta esta semana: `Map` (`/map` y `/likelihood_map`, con `Durability
+Policy: Transient Local` en el QoS de cada uno — ver el Paso 0),
+`PoseArray` (`particlecloud`), y **tres** `Path` (`camino_odom`,
+`camino_corregido`, `camino_real` — cada uno con su propio color) —
+además del `LaserScan` y `TF` que ya tenías. Una vez que tengas todo esto
+probado y andando, es el momento de meter estas seis terminales en tu
+propio launch de semana 05 (incluyendo tu `Node` de `rviz2` con esta
+config ya actualizada).
 
 ---
 
@@ -344,9 +396,13 @@ mirá en RViz:
 - La nube de partículas (`particlecloud`) se **abre** un poco cada vez que
   el robot se mueve, y se **contrae** cada vez que llega un `/scan` nuevo
   y corrige — se tiene que ver "respirar".
-- El camino azul (`camino_odom`, odometría sin corregir) se va separando
-  del camino rojo (`camino_corregido`) a medida que pasa el tiempo — así
-  se ve el *drift* directamente.
+- El camino de `camino_odom` (odometría sin corregir) se va separando del
+  camino real (`camino_real`, la pose de Gazebo) a medida que pasa el
+  tiempo — así se ve el *drift* directamente.
+- El camino de `camino_corregido` se mantiene pegado a `camino_real` todo
+  el tiempo, a pesar de que `camino_odom` se siga alejando — esa es la
+  comprobación central: el filtro está corrigiendo el drift, no solo
+  acompañándolo.
 - El `/scan` (contra el `/map`) se mantiene alineado con las paredes del
   laberinto, sin importar cuánto tiempo lleve andando.
 
