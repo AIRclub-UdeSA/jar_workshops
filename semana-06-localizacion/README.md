@@ -164,9 +164,11 @@ Con el paquete creado:
    `'localizador = localizacion.localizador:main'`.
 3. En `package.xml`, agregá un `<depend>` por cada import que no sea
    `rclpy`/`nav_msgs`/`sensor_msgs`/`geometry_msgs`/`tf2_ros` (que ya
-   declaraste en el `ros2 pkg create`). Hay uno: `campo_verosimilitud.py`
-   usa una librería de cálculo científico que no es de ROS — mismo caso que
-   `cv2`/`numpy` en semana 04, buscá el nombre del paquete apt
+   declaraste en el `ros2 pkg create`). Son dos: `numpy` (usada en los dos
+   nodos) y, solo en `campo_verosimilitud.py`, una librería de cálculo
+   científico que tampoco es de ROS. La de `numpy` ya la resolviste en
+   semana 04 (mismo caso que `cv2` ahí) así que probablemente ya la tengas
+   instalada; para la otra, buscá el nombre del paquete apt
    (`python3-<algo>`) en vez de que te lo demos resuelto.
 
 ```bash

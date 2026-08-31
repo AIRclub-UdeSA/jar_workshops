@@ -120,6 +120,11 @@ class Localizador(Node):
         self.pub_camino_corregido = self.create_publisher(Path, 'camino_corregido', 10)
         self.pub_camino_real = self.create_publisher(Path, 'camino_real', 10)
 
+        # frame_id=map por consistencia visual en RViz con los otros dos
+        # caminos, aunque abajo se le cargan poses crudas de /odom (frame
+        # odom): solo es correcto porque pose_inicial_x/y/theta arrancan en
+        # (0, 0, 0), o sea que map y odom coinciden en t=0. Si cambiás esos
+        # parámetros iniciales, este camino queda desalineado del real.
         self.camino_odom_msg = Path()
         self.camino_odom_msg.header.frame_id = self.map_frame
         self.camino_corregido_msg = Path()
@@ -188,7 +193,6 @@ class Localizador(Node):
             return
 
         pesos = self.pesar_particulas(self.particulas, puntos)
-        self.particulas[:, 3] = pesos
         self.particulas = self.remuestrear(self.particulas, pesos)
         self.publicar_particulas()
 
