@@ -49,6 +49,7 @@ con el mini-proyecto de esa semana:
 | 03 | `evasion_obstaculos` | Evasión de obstáculos (máquina de estados) |
 | 04 | `deteccion_color` | Detección de color con cámara + lidar |
 | 05 | `launch_rviz` | Armá tu launch y tu RViz (sección transversal) |
+| 06 | `localizacion` | Localización en el mapa con filtro de partículas |
 
 ## Estilo de código
 
