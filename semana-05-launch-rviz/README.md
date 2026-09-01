@@ -65,7 +65,7 @@ existe `ros2 launch`.
 
 ### Qué es un launch file
 
-Un [launch file](https://docs.ros.org/en/lyrical/Tutorials/Intermediate/Launch/Launch-Main.html)
+Un [launch file](https://docs.ros.org/en/humble/Tutorials/Intermediate/Launch/Launch-Main.html)
 es un archivo de Python que **describe** qué procesos hay que lanzar —
 no es un script que corre de arriba a abajo, es una descripción que el
 sistema de launch lee y ejecuta por su cuenta. Tres reglas lo definen:
@@ -312,7 +312,7 @@ note como un comportamiento raro, no después.
 Si un tópico *seguro* está publicando (lo confirmaste con
 `ros2 topic hz`) pero el display no muestra nada y no da error de
 transformada, casi siempre es
-[**QoS**](https://docs.ros.org/en/lyrical/Concepts/Intermediate/About-Quality-of-Service-Settings.html).
+[**QoS**](https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html).
 
 Los sensores publican con *Reliability* en **Best Effort** ("mandá el
 dato, y si se pierde uno, no importa, ya viene el próximo"), mientras
