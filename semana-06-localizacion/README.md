@@ -40,7 +40,7 @@ Un robot real tiene (al menos) tres frames relevantes, encadenados
 - **`map`**: el frame del mapa conocido, fijo, que no se mueve. Es donde
   vive la posición "de verdad".
 
-`base_footprint → odom` ya te lo da gratis `wheel_state_odometry` (parte
+`odom → base_footprint` ya te lo da gratis `wheel_state_odometry` (parte
 del simulador, corriendo desde que lanzás Gazebo). Lo que falta, y es el
 objetivo de esta semana, es `map → odom`: una transformada que corrige el
 error acumulado de la odometría comparando lo que ve el lidar (`/scan`)
