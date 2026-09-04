@@ -2,9 +2,9 @@ name: Sync assignee status
 
 on:
   issues:
-    types: [assigned]
+    types: [assigned, unassigned]
   pull_request:
-    types: [assigned]
+    types: [assigned, unassigned]
 
 jobs:
   set-in-progress:
@@ -18,7 +18,7 @@ jobs:
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: AIRclub-UdeSA
 
-      - name: Set project Status to In progress
+      - name: Sync project Status with assignees
         uses: actions/github-script@v7
         with:
           github-token: ${{ steps.app-token.outputs.token }}
@@ -26,6 +26,7 @@ jobs:
             const projectId = "PVT_kwDOEjyD084BhtOr";
             const statusFieldId = "PVTSSF_lADOEjyD084BhtOrzhgn_fY";
             const inProgressOptionId = "e4b255ff";
+            const readyOptionId = "e910ce1a";
             // No pisar estados que representan una etapa mas avanzada del trabajo
             const keepOptionIds = [
               "5c347fba", // In review
@@ -34,6 +35,14 @@ jobs:
             ];
 
             const content = context.payload.issue || context.payload.pull_request;
+            const isAssign = context.payload.action === "assigned";
+            const remainingAssignees = (content.assignees || []).length;
+
+            // Al desasignar, solo volver a Ready si no queda nadie mas asignado
+            if (!isAssign && remainingAssignees > 0) {
+              console.log(`Still ${remainingAssignees} assignee(s), leaving status as is.`);
+              return;
+            }
 
             const result = await github.graphql(
               `query($id: ID!) {
@@ -79,6 +88,8 @@ jobs:
               return;
             }
 
+            const targetOptionId = isAssign ? inProgressOptionId : readyOptionId;
+
             await github.graphql(
               `mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
                 updateProjectV2ItemFieldValue(input: {
@@ -88,7 +99,8 @@ jobs:
                   value: { singleSelectOptionId: $option }
                 }) { projectV2Item { id } }
               }`,
-              { project: projectId, item: item.id, field: statusFieldId, option: inProgressOptionId }
+              { project: projectId, item: item.id, field: statusFieldId, option: targetOptionId }
             );
 
-            console.log(`Status set to In progress for #${content.number}`);
+            const statusName = isAssign ? "In progress" : "Ready";
+            console.log(`Status set to ${statusName} for #${content.number}`);
