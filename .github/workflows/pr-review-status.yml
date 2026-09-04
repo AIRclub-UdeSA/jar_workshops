@@ -2,20 +2,22 @@ name: Sync PR review status
 
 on:
   pull_request:
-    types: [review_requested]
+    types: [review_requested, review_request_removed]
 
 jobs:
   set-in-review:
     runs-on: ubuntu-latest
     steps:
-      - name: Set project Status to In review
+      - name: Sync project Status with review state
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.ORG_PROJECT_TOKEN }}
           script: |
             const projectId = "PVT_kwDOEjyD084BhtOr";
             const statusFieldId = "PVTSSF_lADOEjyD084BhtOrzhgn_fY";
-            const inReviewOptionId = "5c347fba";
+            const statusOptionId = context.payload.action === "review_requested"
+              ? "5c347fba"  // In review
+              : "e4b255ff"; // In progress
             const prNodeId = context.payload.pull_request.node_id;
 
             const result = await github.graphql(
@@ -50,7 +52,8 @@ jobs:
                   value: { singleSelectOptionId: $option }
                 }) { projectV2Item { id } }
               }`,
-              { project: projectId, item: item.id, field: statusFieldId, option: inReviewOptionId }
+              { project: projectId, item: item.id, field: statusFieldId, option: statusOptionId }
             );
 
-            console.log("Status set to In review for PR #" + context.payload.pull_request.number);
+            const statusName = context.payload.action === "review_requested" ? "In review" : "In progress";
+            console.log(`Status set to ${statusName} for PR #${context.payload.pull_request.number}`);
