@@ -38,30 +38,61 @@ jobs:
                         project { number }
                       }
                     }
+                    closingIssuesReferences(first: 10) {
+                      nodes {
+                        number
+                        projectItems(first: 10) {
+                          nodes {
+                            id
+                            project { number }
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }`,
               { prId: prNodeId }
             );
 
-            const item = result.node.projectItems.nodes.find(n => n.project.number === 3);
+            const pr = result.node;
+            const itemOnProject = (items) => items.nodes.find(n => n.project.number === 3);
 
-            if (!item) {
-              console.log("PR is not on project 3 yet, skipping.");
+            // Mover el PR y tambien los issues que ese PR va a cerrar: si no,
+            // el issue se queda en In progress mientras el trabajo espera review
+            const targets = [];
+
+            const prItem = itemOnProject(pr.projectItems);
+            if (prItem) {
+              targets.push({ id: prItem.id, label: `PR #${context.payload.pull_request.number}` });
+            }
+
+            for (const issue of pr.closingIssuesReferences.nodes) {
+              const issueItem = itemOnProject(issue.projectItems);
+              if (issueItem) {
+                targets.push({ id: issueItem.id, label: `issue #${issue.number}` });
+              }
+            }
+
+            if (targets.length === 0) {
+              console.log("Neither the PR nor its linked issues are on project 3 yet, skipping.");
               return;
             }
 
-            await github.graphql(
-              `mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
-                updateProjectV2ItemFieldValue(input: {
-                  projectId: $project
-                  itemId: $item
-                  fieldId: $field
-                  value: { singleSelectOptionId: $option }
-                }) { projectV2Item { id } }
-              }`,
-              { project: projectId, item: item.id, field: statusFieldId, option: statusOptionId }
-            );
-
             const statusName = context.payload.action === "review_requested" ? "In review" : "In progress";
-            console.log(`Status set to ${statusName} for PR #${context.payload.pull_request.number}`);
+
+            for (const target of targets) {
+              await github.graphql(
+                `mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $project
+                    itemId: $item
+                    fieldId: $field
+                    value: { singleSelectOptionId: $option }
+                  }) { projectV2Item { id } }
+                }`,
+                { project: projectId, item: target.id, field: statusFieldId, option: statusOptionId }
+              );
+
+              console.log(`Status set to ${statusName} for ${target.label}`);
+            }
