@@ -1,0 +1,94 @@
+name: Sync assignee status
+
+on:
+  issues:
+    types: [assigned]
+  pull_request:
+    types: [assigned]
+
+jobs:
+  set-in-progress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generar token de la GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: AIRclub-UdeSA
+
+      - name: Set project Status to In progress
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const projectId = "PVT_kwDOEjyD084BhtOr";
+            const statusFieldId = "PVTSSF_lADOEjyD084BhtOrzhgn_fY";
+            const inProgressOptionId = "e4b255ff";
+            // No pisar estados que representan una etapa mas avanzada del trabajo
+            const keepOptionIds = [
+              "5c347fba", // In review
+              "85dd6979", // Done
+              "7cef383f", // Blocked
+            ];
+
+            const content = context.payload.issue || context.payload.pull_request;
+
+            const result = await github.graphql(
+              `query($id: ID!) {
+                node(id: $id) {
+                  ... on Issue {
+                    projectItems(first: 10) {
+                      nodes {
+                        id
+                        project { number }
+                        fieldValueByName(name: "Status") {
+                          ... on ProjectV2ItemFieldSingleSelectValue { name optionId }
+                        }
+                      }
+                    }
+                  }
+                  ... on PullRequest {
+                    projectItems(first: 10) {
+                      nodes {
+                        id
+                        project { number }
+                        fieldValueByName(name: "Status") {
+                          ... on ProjectV2ItemFieldSingleSelectValue { name optionId }
+                        }
+                      }
+                    }
+                  }
+                }
+              }`,
+              { id: content.node_id }
+            );
+
+            const item = result.node.projectItems.nodes.find(n => n.project.number === 3);
+
+            if (!item) {
+              console.log("Item is not on project 3 yet, skipping.");
+              return;
+            }
+
+            const current = item.fieldValueByName;
+
+            if (current && keepOptionIds.includes(current.optionId)) {
+              console.log(`Status is already "${current.name}", leaving it as is.`);
+              return;
+            }
+
+            await github.graphql(
+              `mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $project
+                  itemId: $item
+                  fieldId: $field
+                  value: { singleSelectOptionId: $option }
+                }) { projectV2Item { id } }
+              }`,
+              { project: projectId, item: item.id, field: statusFieldId, option: inProgressOptionId }
+            );
+
+            console.log(`Status set to In progress for #${content.number}`);
