@@ -25,11 +25,12 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
 
+    pkg_sim = get_package_share_directory('yahboom_rosmaster_bringup')
     pkg_gazebo = get_package_share_directory('yahboom_rosmaster_gazebo')
-    pkg_bringup = get_package_share_directory('launch_rviz')
+    pkg_launch_rviz = get_package_share_directory('launch_rviz')
 
     launch_simulador = os.path.join(
-        pkg_gazebo, 'launch', 'rosmaster_gazebo_fortress.launch.py')
+        pkg_sim, 'launch', 'rosmaster_x3_sim.launch.py')
     mundo_por_defecto = os.path.join(
         pkg_gazebo, 'worlds', 'laberinto_simple_victimas.world')
 
@@ -37,7 +38,7 @@ def generate_launch_description():
     # (ver el README). Hasta que lo guardes con este nombre exacto y vuelvas a
     # buildear, RViz va a abrir vacío y a quejarse de que no encuentra el
     # archivo.
-    config_rviz = os.path.join(pkg_bringup, 'rviz', 'deteccion_color.rviz')
+    config_rviz = os.path.join(pkg_launch_rviz, 'rviz', 'deteccion_color.rviz')
 
     declarar_world = DeclareLaunchArgument(
         'world', default_value=mundo_por_defecto,

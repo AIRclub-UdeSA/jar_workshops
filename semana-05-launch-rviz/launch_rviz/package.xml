@@ -23,7 +23,9 @@
       3. Un <exec_depend> por cada paquete cuyos nodos lanzan tus launch files
          — mirá los campos package= de cada Node(...) y qué launch incluís con
          IncludeLaunchDescription. Son los dos paquetes de los workshops
-         anteriores (evasion_obstaculos, deteccion_color) más el del simulador.
+         anteriores (evasion_obstaculos, deteccion_color) más los dos del
+         simulador: yahboom_rosmaster_bringup, de donde sale el launch que
+         incluís, y yahboom_rosmaster_gazebo, de donde salen los mundos.
 
     Son estas de abajo — descomentalas (borrá las marcas de comentario). Como
     siempre, te las damos como ayuda; cuando armes un paquete propio las vas a
@@ -36,6 +38,7 @@
   <exec_depend>rviz2</exec_depend>
   <exec_depend>evasion_obstaculos</exec_depend>
   <exec_depend>deteccion_color</exec_depend>
+  <exec_depend>yahboom_rosmaster_bringup</exec_depend>
   <exec_depend>yahboom_rosmaster_gazebo</exec_depend>
   -->
 

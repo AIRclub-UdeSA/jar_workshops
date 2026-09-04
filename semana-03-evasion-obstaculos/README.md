@@ -176,7 +176,7 @@ detección:
 ```bash
 # Terminal 2 — simulador (mundo cafe, con obstáculos)
 source install/setup.bash
-ros2 launch yahboom_rosmaster_gazebo rosmaster_gazebo_fortress.launch.py \
+ros2 launch yahboom_rosmaster_bringup rosmaster_x3_sim.launch.py \
   world:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/worlds/cafe.world" \
   motion_profile:=ideal
 ```
