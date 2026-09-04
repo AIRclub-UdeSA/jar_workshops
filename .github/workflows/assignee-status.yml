@@ -44,8 +44,12 @@ jobs:
               return;
             }
 
-            const result = await github.graphql(
-              `query($id: ID!) {
+            // El evento de assignee puede llegar antes de que el auto-add
+            // haya metido el item al project (pasa al crear un issue ya
+            // asignado). Reintentar en vez de rendirse en el primer intento.
+            const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+            const query = `query($id: ID!) {
                 node(id: $id) {
                   ... on Issue {
                     projectItems(first: 10) {
@@ -70,14 +74,22 @@ jobs:
                     }
                   }
                 }
-              }`,
-              { id: content.node_id }
-            );
+              }`;
 
-            const item = result.node.projectItems.nodes.find(n => n.project.number === 3);
+            let item = null;
+
+            for (let attempt = 1; attempt <= 5; attempt++) {
+              const result = await github.graphql(query, { id: content.node_id });
+              item = result.node.projectItems.nodes.find(n => n.project.number === 3);
+              if (item) break;
+              if (attempt < 5) {
+                console.log(`Item not on project 3 yet (attempt ${attempt}/5), waiting 3s...`);
+                await sleep(3000);
+              }
+            }
 
             if (!item) {
-              console.log("Item is not on project 3 yet, skipping.");
+              console.log("Item never showed up on project 3, skipping.");
               return;
             }
 
