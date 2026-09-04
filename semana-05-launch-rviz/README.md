@@ -30,8 +30,8 @@ propio, ningún nodo — solo launch files y configuraciones de RViz. Este
 tipo de paquete es tan común en ROS 2 que tiene nombre propio: se lo
 llama paquete de **bringup** (de "levantar el sistema"), y en muchos
 proyectos se lo ve nombrado `algo_bringup` — como
-`yahboom_rosmaster_bringup`, que seguramente vieron de pasada al mirar
-el simulador.
+`yahboom_rosmaster_bringup`, el del simulador, que vienen escribiendo en
+cada `ros2 launch` desde la semana 03 sin haberle prestado atención.
 
 ---
 
@@ -46,7 +46,7 @@ la semana 04 se puso peor, porque así se corría:
 
 ```bash
 # Terminal 1
-ros2 launch yahboom_rosmaster_gazebo rosmaster_gazebo_fortress.launch.py \
+ros2 launch yahboom_rosmaster_bringup rosmaster_x3_sim.launch.py \
   world:=".../laberinto_simple_victimas.world" motion_profile:=ideal
 # Terminal 2
 ros2 run deteccion_color detector --ros-args -p saturacion_min:=140.0
@@ -78,7 +78,7 @@ sistema de launch lee y ejecuta por su cuenta. Tres reglas lo definen:
 
 Se corre con `ros2 launch <paquete> <archivo>.launch.py`, y ya lo
 veníamos usando sin darnos cuenta: es lo que hacía
-`ros2 launch yahboom_rosmaster_gazebo rosmaster_gazebo_fortress.launch.py`.
+`ros2 launch yahboom_rosmaster_bringup rosmaster_x3_sim.launch.py`.
 
 ### Anatomía: el ejemplo resuelto
 

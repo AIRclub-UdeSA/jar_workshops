@@ -124,7 +124,7 @@ Podés elegir cualquiera de los `_victimas`; acá usamos
 ```bash
 # Terminal 2 — simulador
 source install/setup.bash
-ros2 launch yahboom_rosmaster_gazebo rosmaster_gazebo_fortress.launch.py \
+ros2 launch yahboom_rosmaster_bringup rosmaster_x3_sim.launch.py \
   world:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/worlds/laberinto_simple_victimas.world" \
   motion_profile:=ideal
 ```
@@ -234,7 +234,7 @@ source install/setup.bash
 ```bash
 # Terminal 2 — simulador (igual que en la Parte 1)
 source install/setup.bash
-ros2 launch yahboom_rosmaster_gazebo rosmaster_gazebo_fortress.launch.py \
+ros2 launch yahboom_rosmaster_bringup rosmaster_x3_sim.launch.py \
   world:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/worlds/laberinto_simple_victimas.world" \
   motion_profile:=ideal
 ```

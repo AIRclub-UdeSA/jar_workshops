@@ -28,13 +28,20 @@ def generate_launch_description():
     # (install/<paquete>/share/<paquete>), no la del código fuente. Por eso
     # importa el TODO 1 de setup.py: si los archivos no se instalan, no están
     # acá y estos os.path.join apuntan a rutas que no existen.
+    #
+    # Hacen falta tres carpetas share distintas: el launch del simulador vive
+    # en yahboom_rosmaster_bringup — es el mismo
+    # `ros2 launch yahboom_rosmaster_bringup rosmaster_x3_sim.launch.py` que
+    # vienen corriendo a mano desde la semana 03 —, los mundos los instala
+    # yahboom_rosmaster_gazebo, y la config de RViz es de este paquete.
+    pkg_sim = get_package_share_directory('yahboom_rosmaster_bringup')
     pkg_gazebo = get_package_share_directory('yahboom_rosmaster_gazebo')
-    pkg_bringup = get_package_share_directory('launch_rviz')
+    pkg_launch_rviz = get_package_share_directory('launch_rviz')
 
     launch_simulador = os.path.join(
-        pkg_gazebo, 'launch', 'rosmaster_gazebo_fortress.launch.py')
+        pkg_sim, 'launch', 'rosmaster_x3_sim.launch.py')
     mundo_por_defecto = os.path.join(pkg_gazebo, 'worlds', 'cafe.world')
-    config_rviz = os.path.join(pkg_bringup, 'rviz', 'evasion.rviz')
+    config_rviz = os.path.join(pkg_launch_rviz, 'rviz', 'evasion.rviz')
 
     # Los argumentos de launch son los que se pasan por línea de comandos con
     # `nombre:=valor`, igual que ya venían haciendo con el `world:=` del
