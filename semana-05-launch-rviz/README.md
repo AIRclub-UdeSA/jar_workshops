@@ -314,11 +314,14 @@ Si un tópico *seguro* está publicando (lo confirmaste con
 transformada, casi siempre es
 [**QoS**](https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html).
 
-Los sensores publican con *Reliability* en **Best Effort** ("mandá el
-dato, y si se pierde uno, no importa, ya viene el próximo"), mientras
-que el default de un display de RViz suele ser **Reliable**. Un
-subscriber Reliable no se conecta a un publisher Best Effort: no es un
-error, simplemente nunca llegan datos.
+Es exactamente el mismo problema que ya viste en la
+[semana 03](../semana-03-evasion-obstaculos/) al suscribir el `/scan`
+desde `evasor.py`, pero ahora del lado de RViz. Los sensores publican
+con *Reliability* en **Best Effort** ("mandá el dato, y si se pierde
+uno, no importa, ya viene el próximo"), mientras que el default de un
+display de RViz suele ser **Reliable**. Un subscriber Reliable no se
+conecta a un publisher Best Effort: no es un error, simplemente nunca
+llegan datos.
 
 La solución es abrir el display, desplegar **Topic** y poner
 *Reliability Policy* en **Best Effort**. En la config que viene con este
@@ -327,16 +330,20 @@ para `/scan` — podés buscar la línea `Reliability Policy: Best Effort` y
 ver a qué display pertenece.
 
 Ojo que esto no es una regla fija de "siempre Best Effort": depende de
-con qué QoS publica el nodo del otro lado. `/scan` viene del bridge de
-Gazebo, que usa QoS de sensor (Best Effort). `/scan_cono`, en cambio, lo
-publica [`evasor.py`](../semana-03-evasion-obstaculos/evasion_obstaculos/evasion_obstaculos/evasor.py)
+con qué QoS publica el nodo del otro lado. En Best Effort publica todo
+lo que sale directo de un sensor: `/scan`, `/cam_1/color/image_raw` y el
+resto de los tópicos de la cámara — el simulador los publica así a
+propósito, para que el mismo código funcione contra el ROSMASTER X3
+físico, que hace lo mismo. `/scan_cono`, en cambio, lo publica
+[`evasor.py`](../semana-03-evasion-obstaculos/evasion_obstaculos/evasion_obstaculos/evasor.py)
 con `create_publisher(...)` sin tocar el perfil de QoS, así que queda
 con el default de rclpy — **Reliable**. Por eso el display de
 `/scan_cono` en `evasion.rviz` tiene `Reliability Policy: Reliable`,
 distinto del de `/scan`. La regla real es: la Reliability Policy del
 display tiene que coincidir con la del publisher, sea cual sea — Best
 Effort no es más "correcto", solo es lo que corresponde para datos
-crudos de sensores.
+crudos de sensores. Lo mismo vale para `/scan_rojo`, que publica
+`detector_scan.py`: es un tópico derivado, no un sensor, y va Reliable.
 
 ### Guardar la configuración
 
@@ -415,10 +422,17 @@ archivo no existe todavía:
    (aunque RViz abra vacío y se queje de que no encuentra el archivo),
    agregá:
 
-   - `Image` en `/cam_1/color/image_raw`
-   - `LaserScan` en `/scan`, gris y chico
-   - `LaserScan` en `/scan_rojo`, rojo y grande
+   - `Image` en `/cam_1/color/image_raw`, con
+     `Reliability Policy: Best Effort`
+   - `LaserScan` en `/scan`, gris y chico, también en `Best Effort`
+   - `LaserScan` en `/scan_rojo`, rojo y grande — este va en `Reliable`,
+     porque lo publica `detector_scan.py` con el default de rclpy
    - `RobotModel` y `Grid`, y el Fixed Frame en `odom`
+
+   Los dos primeros son sensores: si dejás el `Reliability Policy` en el
+   default, el display queda vacío y RViz no marca ningún error (ver la
+   sección de QoS más arriba). La cámara es la que más despista, porque
+   una imagen en negro parece un problema de la cámara y no del QoS.
 
    Usá [`evasion.rviz`](launch_rviz/rviz/evasion.rviz) (que ya viene
    armado) de referencia. Después `File > Save Config As` →
