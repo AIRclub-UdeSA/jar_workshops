@@ -50,6 +50,15 @@ es un aviso, no un estado continuo — pero conviene loguear siempre las
 transiciones (de "veo" a "no veo" y viceversa), aunque el `False` no se
 publique.
 
+La cámara, igual que el lidar, publica en **best effort**, así que la
+suscripción a `/cam_1/color/image_raw` va con `qos_profile_sensor_data`
+y no con un `10` — ya viene resuelta así en `detector.py`, y lo mismo
+pasa con las tres suscripciones de la Parte 2. Si no te suena por qué,
+está explicado en la sección *QoS* del
+[README de la semana 03](../semana-03-evasion-obstaculos/): es la clase
+de detalle que, si falta, hace que el nodo levante sin errores y no
+reciba ni un frame.
+
 ### Qué hay que completar
 
 `detector.py` ya trae resuelto lo que no es la detección en sí: los

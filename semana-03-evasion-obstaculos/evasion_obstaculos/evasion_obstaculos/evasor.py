@@ -3,6 +3,7 @@ import math
 import numpy as np
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
@@ -49,8 +50,14 @@ class Evasor(Node):
         # verla en RViz. No la usa ningún otro nodo ni afecta la decisión
         # del evasor — es pura ayuda visual para debuggear hay_obstaculo().
         self.publisher_scan_cono = self.create_publisher(LaserScan, 'scan_cono', 10)
+        # Los sensores (lidar, cámara) publican con QoS "best effort": mandan
+        # el dato y no reintentan si se pierde. El default de rclpy es
+        # "reliable", y un subscriber reliable NO se conecta a un publisher
+        # best effort — no llega ningún mensaje y tampoco hay error. Por eso
+        # acá va qos_profile_sensor_data y no un 10 como en /odom, que sí es
+        # reliable. Más sobre esto en el README.
         self.subscription = self.create_subscription(
-            LaserScan, 'scan', self.recibir_scan, 10
+            LaserScan, 'scan', self.recibir_scan, qos_profile_sensor_data
         )
         # Odometría real (integrada por wheel_state_odometry.py a partir de
         # /joint_states, no lo que se comanda). Se usa para medir cuánto giró

@@ -81,6 +81,71 @@ los callbacks que solo tocan variables, y `maquina_de_estados()` es el
 timer callback que corre a frecuencia fija — primero decide la
 transición, después actúa según el estado ya actualizado.
 
+### QoS: por qué el `/scan` no se suscribe igual que un topic común
+
+En la [semana 01](../semana-01-talkers-listeners/) las suscripciones se
+crearon así:
+
+```python
+self.create_subscription(String, 'mensaje', self.recibir, 10)
+```
+
+Ese `10` es el **tamaño de cola**: cuántos mensajes sin procesar guarda
+ROS 2 antes de descartar los más viejos. Pero pasar solo un número
+también elige, sin que se note, el resto del perfil de
+[**QoS**](https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html)
+(*Quality of Service*): las políticas que publisher y subscriber negocian
+para poder conectarse. La que importa acá es *reliability*, y el default
+de rclpy es **reliable** — reintentar hasta que el mensaje llegue.
+
+Para un `String` a 1 Hz está perfecto. Los sensores no funcionan así: el
+lidar publica a 5 Hz y no va a parar nunca, así que si un scan se pierde,
+reintentarlo no tiene ningún sentido — ya viene el próximo, y es más
+nuevo. Por eso los sensores publican en **best effort** ("mandalo, y si
+se pierde, se perdió"), tanto en el simulador como en el ROSMASTER X3
+físico.
+
+Y acá está el detalle que conviene ver una vez con alguien al lado: **un
+subscriber reliable no se conecta a un publisher best effort.** DDS
+considera los perfiles incompatibles y directamente no arma la conexión.
+No es un error, no es una excepción, no se cae nada — el callback
+simplemente no se llama nunca. El robot se queda quieto y la pantalla no
+dice absolutamente nada.
+
+Por eso `evasor.py` suscribe el `/scan` con el perfil de sensores, que
+rclpy ya trae armado:
+
+```python
+from rclpy.qos import qos_profile_sensor_data
+...
+self.create_subscription(LaserScan, 'scan', self.recibir_scan, qos_profile_sensor_data)
+```
+
+Mirá el `__init__` del nodo: las dos suscripciones están una al lado de
+la otra y son distintas a propósito. `/scan` va con
+`qos_profile_sensor_data` porque lo publica un sensor; `/odom` va con
+`10` porque lo publica `wheel_state_odometry`, un nodo común, en
+reliable. La regla no es "los sensores siempre en best effort", es que
+**el subscriber tiene que matchear con el publisher del otro lado**, sea
+cual sea. Para averiguar con qué QoS publica alguien:
+
+```bash
+ros2 topic info /scan --verbose   # mirá el "Reliability" de los publishers
+```
+
+Si alguna vez te toca depurar esto, ROS 2 deja una única pista, en el log
+del nodo que se quedó sin datos:
+
+```text
+[evasor] New publisher discovered on topic 'scan', offering incompatible QoS.
+         No messages will be received from it. Last incompatible policy: RELIABILITY
+```
+
+Buscar ese `incompatible QoS` es lo primero que conviene hacer cuando un
+nodo no recibe nada pero `ros2 topic hz` muestra el tópico publicando
+perfecto. En la [semana 05](../semana-05-launch-rviz/) vuelve a aparecer
+lo mismo, pero del lado de los displays de RViz.
+
 ### El paquete ROS 2: `setup.py` y `package.xml`
 
 Además de la máquina de estados, un paquete `ament_python` necesita dos

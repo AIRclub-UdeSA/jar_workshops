@@ -4,7 +4,8 @@ import numpy as np
 
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSHistoryPolicy, QoSReliabilityPolicy
+from rclpy.qos import (QoSProfile, QoSDurabilityPolicy, QoSHistoryPolicy,
+                       QoSReliabilityPolicy, qos_profile_sensor_data)
 from rclpy.time import Time
 
 from nav_msgs.msg import OccupancyGrid, Odometry, Path
@@ -111,7 +112,10 @@ class Localizador(Node):
             durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
         )
         self.create_subscription(OccupancyGrid, 'likelihood_map', self.recibir_campo, qos_mapa)
-        self.create_subscription(LaserScan, 'scan', self.recibir_scan, 10)
+        # El /scan va best effort (qos_profile_sensor_data, ver semana 03);
+        # /odom y /ground_truth/odom son reliable y van con el default.
+        self.create_subscription(LaserScan, 'scan', self.recibir_scan,
+                                 qos_profile_sensor_data)
         self.create_subscription(Odometry, 'odom', self.recibir_odom, 10)
         self.create_subscription(Odometry, 'ground_truth/odom', self.recibir_ground_truth, 10)
 

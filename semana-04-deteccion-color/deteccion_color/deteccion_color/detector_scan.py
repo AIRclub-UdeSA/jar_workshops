@@ -5,6 +5,7 @@ import numpy as np
 import rclpy
 import tf2_ros
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from rclpy.time import Time
 from sensor_msgs.msg import CameraInfo, Image, LaserScan
 from cv_bridge import CvBridge
@@ -102,13 +103,19 @@ class DetectorScanColor(Node):
         self.info_camara = None
         self.aviso_tf_mostrado = False
 
+        # Las tres suscripciones son a sensores, así que las tres van con
+        # qos_profile_sensor_data (best effort) — ver semana 03.
         self.create_subscription(
-            Image, 'cam_1/color/image_raw', self.recibir_imagen, 10
+            Image, 'cam_1/color/image_raw', self.recibir_imagen,
+            qos_profile_sensor_data
         )
         self.create_subscription(
-            CameraInfo, 'cam_1/color/camera_info', self.recibir_info_camara, 10
+            CameraInfo, 'cam_1/color/camera_info', self.recibir_info_camara,
+            qos_profile_sensor_data
         )
-        self.create_subscription(LaserScan, 'scan', self.recibir_scan, 10)
+        self.create_subscription(
+            LaserScan, 'scan', self.recibir_scan, qos_profile_sensor_data
+        )
 
         # TODO: arrancá por acá esta parte del workshop. Creá self.publisher_,
         # el publisher de LaserScan en el tópico 'scan_rojo' (mismo patrón que

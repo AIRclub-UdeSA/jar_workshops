@@ -292,7 +292,9 @@ Toda la plomería está resuelta: parámetros, suscripciones, la
 inicialización de las partículas (una nube gaussiana angosta alrededor de
 una pose inicial conocida — **no** es localización global, ver el desafío
 extra), la conversión del `/scan` a puntos en `base_footprint` (reusando
-`tf2`, mismo patrón que `detector_scan.py` de semana 04), la estimación de
+`tf2`, mismo patrón que `detector_scan.py` de semana 04; la suscripción
+al `/scan` va en `qos_profile_sensor_data`, como en las semanas 03 y 04,
+mientras que `/odom` y `/ground_truth/odom` van con el default reliable), la estimación de
 pose por promedio, la publicación de la nube de partículas
 ([`geometry_msgs/PoseArray`](https://docs.ros2.org/latest/api/geometry_msgs/msg/PoseArray.html)
 en el tópico `particlecloud`) y de **tres**
