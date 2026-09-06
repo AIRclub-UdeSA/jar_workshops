@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import Image
 from std_msgs.msg import Bool
 from cv_bridge import CvBridge
@@ -41,8 +42,12 @@ class DetectorColor(Node):
         self.puente = CvBridge()
 
         self.publisher_ = self.create_publisher(Bool, 'rojo_detectado', 10)
+        # qos_profile_sensor_data: la cámara publica best effort, igual que el
+        # lidar de la semana 03. Con el default reliable no llegaría ni un
+        # frame, y sin ningún error.
         self.subscription = self.create_subscription(
-            Image, 'cam_1/color/image_raw', self.recibir_imagen, 10
+            Image, 'cam_1/color/image_raw', self.recibir_imagen,
+            qos_profile_sensor_data
         )
         self.timer = self.create_timer(1.0 / FRECUENCIA_HZ, self.procesar_imagen)
 
