@@ -58,14 +58,21 @@ class Localizador(Node):
         self.declare_parameter('pose_inicial_theta', 0.0)
         self.declare_parameter('dispersion_inicial_xy', 0.3)
         self.declare_parameter('dispersion_inicial_theta', 0.3)
-        # Ruido del modelo de movimiento odométrico rot1-trans-rot2 (Thrun,
-        # Probabilistic Robotics): alpha1/alpha2 escalan el ruido de rotación
-        # (con la rotación y la traslación del propio movimiento), alpha3/
-        # alpha4 escalan el ruido de traslación.
-        self.declare_parameter('alpha1', 0.05)
-        self.declare_parameter('alpha2', 0.05)
-        self.declare_parameter('alpha3', 0.05)
-        self.declare_parameter('alpha4', 0.05)
+        # Ruido del modelo de movimiento odométrico mecanum. Son las seis
+        # gammas de la tabla: gamma1 escala el ruido de cada eje de
+        # traslación sobre sí mismo, gamma2 el acoplamiento entre los dos
+        # ejes, gamma3 cuánto ruido de traslación mete el haber rotado,
+        # gamma4/gamma5 cuánto ruido de rotación meten el avance y el
+        # strafe, y gamma6 la rotación sobre sí misma.
+        # OJO: son VARIANZAS, no desvíos (por eso los deltas van al
+        # cuadrado en la fórmula). Están sin calibrar a propósito: ajustarlas
+        # es parte del desafío extra.
+        self.declare_parameter('gamma1', 0.0025)
+        self.declare_parameter('gamma2', 0.0025)
+        self.declare_parameter('gamma3', 0.0025)
+        self.declare_parameter('gamma4', 0.0025)
+        self.declare_parameter('gamma5', 0.0025)
+        self.declare_parameter('gamma6', 0.0025)
         # Cada cuántos rayos del /scan (de los 1080 totales) se usa para
         # pesar las partículas. Bajarlo (usar más rayos) es más preciso pero
         # más lento; subirlo, al revés.
@@ -75,10 +82,12 @@ class Localizador(Node):
         self.odom_frame = self.get_parameter('odom_frame').value
         self.base_frame = self.get_parameter('base_frame').value
         self.num_particulas = self.get_parameter('num_particulas').value
-        self.alpha1 = self.get_parameter('alpha1').value
-        self.alpha2 = self.get_parameter('alpha2').value
-        self.alpha3 = self.get_parameter('alpha3').value
-        self.alpha4 = self.get_parameter('alpha4').value
+        self.gamma1 = self.get_parameter('gamma1').value
+        self.gamma2 = self.get_parameter('gamma2').value
+        self.gamma3 = self.get_parameter('gamma3').value
+        self.gamma4 = self.get_parameter('gamma4').value
+        self.gamma5 = self.get_parameter('gamma5').value
+        self.gamma6 = self.get_parameter('gamma6').value
         self.submuestreo_scan = self.get_parameter('submuestreo_scan').value
 
         # Estado del filtro: array (num_particulas, 4) con columnas
@@ -163,8 +172,8 @@ class Localizador(Node):
         self.acumular_camino(self.camino_real_msg, self.pub_camino_real, x, y, theta)
 
     def recibir_odom(self, msg: Odometry):
-        """Predicción: descompone el movimiento desde la última odometría en
-        (t, rot1, rot2) y se lo pasa a mover_particulas()."""
+        """Predicción: calcula el desplazamiento y la rotación desde la
+        última odometría y se los pasa a mover_particulas()."""
         x = msg.pose.pose.position.x
         y = msg.pose.pose.position.y
         theta = self.yaw_de_quaternion(msg.pose.pose.orientation)
@@ -172,14 +181,9 @@ class Localizador(Node):
         if self.ultimo_odom is not None:
             x0, y0, theta0 = self.ultimo_odom
             dx, dy = x - x0, y - y0
-            delta_t = math.hypot(dx, dy)
-            if delta_t > 1e-6:
-                delta_rot1 = normalizar_angulo(math.atan2(dy, dx) - theta0)
-            else:
-                delta_rot1 = 0.0
-            delta_rot2 = normalizar_angulo(theta - theta0 - delta_rot1)
+            dtheta = normalizar_angulo(theta - theta0)
 
-            self.particulas = self.mover_particulas(self.particulas, delta_t, delta_rot1, delta_rot2)
+            self.particulas = self.mover_particulas(self.particulas, dx, dy, dtheta, theta0)
             self.publicar_particulas()
             self.acumular_camino(self.camino_odom_msg, self.pub_camino_odom, x, y, theta)
 
@@ -292,29 +296,43 @@ class Localizador(Node):
 
     # ---------- el filtro de partículas ----------
 
-    def mover_particulas(self, particulas, delta_t, delta_rot1, delta_rot2):
+    def mover_particulas(self, particulas, dx, dy, dtheta, theta0):
         """
-        TODO: modelo de movimiento odométrico rot1-trans-rot2 (el mismo de
-        Probabilistic Robotics / tu TP2), aplicado a las N partículas a la
-        vez con numpy. Devolvé un array nuevo (mismo shape que particulas).
+        TODO: modelo de movimiento odométrico **mecanum**
+        (`sample_motion_model_odometry`, el de la lámina de la clase),
+        aplicado a las N partículas a la vez con numpy. Devolvé un array
+        nuevo (mismo shape que particulas).
+
+        La idea: el robot es holonómico, así que el desplazamiento se
+        describe con tres números en el marco del propio robot —cuánto
+        avanzó, cuánto se deslizó de costado, cuánto rotó— y cada uno lleva
+        su ruido. No hay que inventar rotaciones que el robot no hizo.
 
         Pasos sugeridos:
-          1. Calcular el desvío estándar del ruido para cada componente:
-               std_rot1  = alpha1 * |delta_rot1| + alpha2 * delta_t
-               std_trans = alpha3 * delta_t + alpha4 * (|delta_rot1| + |delta_rot2|)
-               std_rot2  = alpha1 * |delta_rot2| + alpha2 * delta_t
-             (self.alpha1..4 ya están cargados en __init__).
-          2. Para cada partícula, restarle a cada componente del movimiento
-             una muestra de ruido gaussiano con esos desvíos:
-             np.random.normal(0.0, std, n) — un array de N muestras por
-             componente, no un solo valor.
-          3. Con el movimiento ya "ruidoso" (rot1_ruidoso, trans_ruidosa,
-             rot2_ruidoso), actualizar cada partícula:
-               x'     = x + trans_ruidosa * cos(theta + rot1_ruidoso)
-               y'     = y + trans_ruidosa * sin(theta + rot1_ruidoso)
-               theta' = theta + rot1_ruidoso + rot2_ruidoso
+          1. Pasar el desplazamiento (dx, dy), que viene en el frame `odom`,
+             al frame que tenía el robot al empezar el paso (theta0):
+               d_trans_x =  dx*cos(theta0) + dy*sin(theta0)   # adelante
+               d_trans_y = -dx*sin(theta0) + dy*cos(theta0)   # de costado
+               d_rot     =  dtheta                            # lo que rotó
+             (`d_rot` es la rotación REAL, ya te la pasan calculada.)
+          2. Calcular la varianza del ruido de cada componente. Ojo que
+             `self.gamma1..6` son **varianzas**, así que los deltas van al
+             cuadrado y el desvío es la raíz de la suma:
+               std_x   = sqrt(gamma1*d_trans_x² + gamma2*d_trans_y² + gamma3*d_rot²)
+               std_y   = sqrt(gamma2*d_trans_x² + gamma1*d_trans_y² + gamma3*d_rot²)
+               std_rot = sqrt(gamma4*d_trans_x² + gamma5*d_trans_y² + gamma6*d_rot²)
+             (Notá que en `std_y` gamma1 y gamma2 aparecen al revés que en
+             `std_x`: gamma1 es siempre el eje propio y gamma2 el cruzado.)
+          3. Restarle a cada componente una muestra de ruido gaussiano con
+             ese desvío: np.random.normal(0.0, std, n) — un array de N
+             muestras por componente, no un solo valor.
+          4. Componer el desplazamiento ruidoso sobre la pose de cada
+             partícula, rotándolo por el theta de ESA partícula:
+               x'     = x + d_trans_x_hat*cos(theta) - d_trans_y_hat*sin(theta)
+               y'     = y + d_trans_x_hat*sin(theta) + d_trans_y_hat*cos(theta)
+               theta' = theta + d_rot_hat
              (normalizá theta' al rango (-pi, pi] con np.arctan2(sin, cos)).
-          4. Devolver un array nuevo con esas x', y', theta' (y el mismo
+          5. Devolver un array nuevo con esas x', y', theta' (y el mismo
              peso que tenían, no se toca acá).
         """
         pass
