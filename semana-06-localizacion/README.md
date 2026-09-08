@@ -270,10 +270,12 @@ alrededor de cada pared del laberinto, en vez de líneas duras.
 ### Teoría: predicción, corrección, resampleo — con números
 
 - **Predicción**: el movimiento entre dos lecturas de `/odom` se descompone
-  en *rotar hacia el rumbo del desplazamiento* (`rot1`), *avanzar*
-  (`trans`), *rotar lo que falte* (`rot2`) — el modelo de movimiento
-  odométrico estándar (Thrun, *Probabilistic Robotics*). A cada componente se le suma ruido gaussiano proporcional a
-  su propia magnitud, y se aplica a las N partículas a la vez.
+  en tres números **en el marco del propio robot** — cuánto avanzó
+  (`d_trans_x`), cuánto se deslizó de costado (`d_trans_y`) y cuánto rotó
+  (`d_rot`) — y a cada uno se le suma ruido gaussiano. Se aplica a las N
+  partículas a la vez. Es el modelo de movimiento odométrico para
+  plataformas **holonómicas** (`sample_motion_model_odometry` en su forma
+  mecanum), y está explicado abajo en detalle.
 - **Corrección**: para cada partícula, transformar los puntos del `/scan`
   a su pose, mirar qué dice `/likelihood_map` en esa posición, y combinar
   esas probabilidades en un peso por partícula.
@@ -285,6 +287,58 @@ corrigen), en vez de solo guardar el último dato como en semanas
 anteriores — es la forma natural de un filtro de partículas: predicción
 atada a la tasa de odometría, corrección atada a la tasa del sensor, sin
 un timer artificial en el medio.
+
+### Teoría: por qué este modelo y no el del libro
+
+Si buscás "odometry motion model" en cualquier curso o paper vas a
+encontrar la versión de Thrun (*Probabilistic Robotics*, tabla 5.6), que
+descompone cada paso en **rotar → avanzar → rotar** (`rot1`, `trans`,
+`rot2`). Vale la pena saber que existe, porque es el vocabulario estándar.
+
+Pero esa descomposición asume un robot **no holonómico**: uno que para ir a
+algún lado tiene que primero apuntar para allá. El ROSMASTER X3 es
+**mecanum**, o sea holonómico — puede desplazarse de costado sin girar, que
+es literalmente lo que programaste en la Semana 02.
+
+Aplicarle el modelo de Thrun a este robot rompe así: ante un *strafe* puro
+(el robot se desliza de costado, `Δθ = 0`) el modelo calcula `rot1 ≈ +90°` y
+`rot2 ≈ -90°`. La pose que sale es correcta, pero **el ruido se calcula
+sobre esas rotaciones que nunca ocurrieron**, y termina inyectando
+incertidumbre angular en un robot que no rotó. Retroceder es todavía peor:
+ahí `rot1 ≈ 180°`.
+
+Por eso usamos el modelo **mecanum**, que en vez de inventar rotaciones usa
+la rotación real y le da al deslizamiento lateral su propio eje de ruido:
+
+```text
+1: d_trans_x =  (xt - xt-1)·cos(θt-1) + (yt - yt-1)·sin(θt-1)
+2: d_trans_y = -(xt - xt-1)·sin(θt-1) + (yt - yt-1)·cos(θt-1)
+3: d_rot     =  θt - θt-1
+
+4: d_trans_x^ = d_trans_x - sample(γ1·d_trans_x² + γ2·d_trans_y² + γ3·d_rot²)
+5: d_trans_y^ = d_trans_y - sample(γ2·d_trans_x² + γ1·d_trans_y² + γ3·d_rot²)
+6: d_rot^     = d_rot     - sample(γ4·d_trans_x² + γ5·d_trans_y² + γ6·d_rot²)
+
+7: x'  = x + d_trans_x^·cos(θ) - d_trans_y^·sin(θ)
+8: y'  = y + d_trans_x^·sin(θ) + d_trans_y^·cos(θ)
+9: θ'  = θ + d_rot^
+```
+
+Las líneas 1-2 pasan el desplazamiento al marco del robot; la 3 es la
+rotación real, sin inventar nada. Las 4-6 le ponen ruido a cada componente,
+con acoplamiento cruzado (avanzar también ensucia el rumbo, rotar también
+ensucia la posición). Las 7-9 componen el resultado sobre cada partícula.
+
+> [!NOTE]
+> `sample(b)` en esta notación toma una **varianza**, no un desvío — por eso
+> los deltas van al cuadrado y el desvío que le pasás a `np.random.normal`
+> es la raíz de esa suma. Es la convención del libro, y es la fuente de
+> error más común al implementar esto.
+
+Esta distinción reaparece más adelante: cuando pasemos a
+[Nav2](https://docs.nav2.org/), su AMCL te hace elegir explícitamente entre
+`DifferentialMotionModel` y `OmniMotionModel`. Si entendiste por qué acá
+elegimos el segundo, esa configuración deja de ser magia.
 
 ### Qué hay que completar
 
@@ -324,7 +378,7 @@ corrija nada), antes de meterte con `pesar_particulas()`.
 | `num_particulas` | 300 | Cuántas hipótesis de pose mantiene el filtro. Más partículas = más preciso, más lento. |
 | `pose_inicial_x/y/theta` | 0.0 / 0.0 / 0.0 | Pose inicial conocida (el robot siempre spawnea en el origen del mundo, que coincide con el origen del mapa). |
 | `dispersion_inicial_xy` / `dispersion_inicial_theta` | 0.3 / 0.3 | Qué tan dispersa arranca la nube alrededor de la pose inicial. |
-| `alpha1`-`alpha4` | 0.05 cada uno | Ruido del modelo de movimiento rot1-trans-rot2 (ver teoría). |
+| `gamma1`-`gamma6` | 0.0025 cada uno | Ruido del modelo de movimiento mecanum (ver teoría). Son **varianzas**, no desvíos. **Están sin calibrar a propósito** — ver el desafío extra. |
 | `submuestreo_scan` | 15 | Cada cuántos rayos del `/scan` (de 1080) se usa para pesar. Bajarlo = más preciso y más lento. |
 
 ### Cómo correrlo
@@ -405,6 +459,10 @@ mirá en RViz:
 - La nube de partículas (`particlecloud`) se **abre** un poco cada vez que
   el robot se mueve, y se **contrae** cada vez que llega un `/scan` nuevo
   y corrige — se tiene que ver "respirar".
+- Probá moverte **de costado** (en `teleop_twist_keyboard` las mayúsculas
+  activan el modo holonómico) y fijate que la nube **no gira**: el robot no
+  rotó, y el modelo lo sabe. Con el modelo de Thrun acá la nube se abriría
+  en ángulo aunque el robot vaya perfectamente derecho de lado.
 - El camino de `camino_odom` (odometría sin corregir) se va separando del
   camino real (`camino_real`, la pose de Gazebo) a medida que pasa el
   tiempo — así se ve el *drift* directamente.
@@ -437,6 +495,30 @@ localización.
 
 ## Desafío extra
 
+- **Calibrar el ruido (`gamma1`-`gamma6`)**: los defaults están puestos en
+  `0.0025` y **no están calibrados**. Con esos valores el filtro es muy
+  preciso mientras va bien, pero se vuelve *sobre-confiado*: la nube queda
+  tan angosta que, si el error crece —probá rotando y haciendo strafe un
+  rato largo—, ninguna partícula queda cerca de la pose verdadera y el
+  filtro **ya no se puede recuperar**, por más que sigas manejando. Es el
+  problema clásico del filtro de partículas: una nube angosta es precisa
+  pero frágil, una nube ancha es imprecisa pero robusta.
+
+  Subí el ruido y buscá el punto justo. Empezá por `gamma6` (la rotación
+  sobre sí misma), que es donde más se nota, probando ×4, ×16 y ×64 sobre
+  el default. Preguntas para contestar con lo que veas:
+
+  - ¿Cuál es el primer valor con el que el filtro se recupera solo después
+    de haber divergido?
+  - ¿A partir de qué valor la pose estimada se pone a "bailar" aunque el
+    robot vaya derecho?
+  - ¿Conviene que `gamma5` (strafe → ruido de rumbo) sea mayor que `gamma4`
+    (avance → ruido de rumbo)? Pensalo desde la física de las ruedas
+    mecanum: ¿en qué dirección patinan más?
+
+  Para comparar en serio conviene medir en vez de mirar: registrar el error
+  contra `/ground_truth/odom` mientras manejás, y comparar la mediana entre
+  configuraciones.
 - **Localización global**: hoy el filtro arranca con una nube angosta
   alrededor de una pose conocida — es *tracking*, no relocalización. El
   mismo algoritmo sirve para localización global con un solo cambio:
