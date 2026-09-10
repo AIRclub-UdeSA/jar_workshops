@@ -202,10 +202,13 @@ bloque que agrupa lo es). Quedan **2 funciones con `TODO`**:
    sin ROS. Se puede probar aislado, con un par de celdas de ejemplo,
    antes de tocar nada del nodo (mismo criterio que
    `agrupar_en_rachas()` de semana 07).
-2. **`recibir_scan()`** — el corazón de este nodo: transformar cada
-   rayo del `/scan` a `map` (reusá acá el patrón de semana 04/07), y
-   usar `trazar_rayo()` para marcar como cubiertas las celdas que
-   atraviesa.
+2. **`marcar_cobertura()`** — el corazón de este nodo: transformar cada
+   rayo del último `/scan` a `map` (reusá acá el patrón de semana
+   04/07), y usar `trazar_rayo()` para marcar como cubiertas las
+   celdas que atraviesa. `recibir_scan()` ya está resuelta y solo
+   guarda el último mensaje (`self.ultimo_scan`) — la lógica corre en
+   `marcar_cobertura()`, llamada por un timer a `FRECUENCIA_HZ`, no
+   directo desde el callback del sensor (separación sensor/decisión).
 
 Completalas en ese orden.
 

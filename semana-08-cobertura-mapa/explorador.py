@@ -89,6 +89,7 @@ class Explorador(Node):
         self.declare_parameter('ganancia_atractiva', 0.6)
         self.declare_parameter('ganancia_repulsiva', 0.15)
         self.declare_parameter('radio_repulsion', 0.4)
+        self.declare_parameter('distancia_minima_valida', 0.25)
         self.declare_parameter('suavizado', 0.3)
         self.declare_parameter('tiempo_asentamiento_s', 3.0)
         # Donatello mide 0.30 x 0.20 m (rosmaster_x3_base.urdf.xacro); el
@@ -105,6 +106,7 @@ class Explorador(Node):
         self.ganancia_atractiva = self.get_parameter('ganancia_atractiva').value
         self.ganancia_repulsiva = self.get_parameter('ganancia_repulsiva').value
         self.radio_repulsion = self.get_parameter('radio_repulsion').value
+        self.distancia_minima_valida = self.get_parameter('distancia_minima_valida').value
         # Peso del comando nuevo contra el anterior (media móvil exponencial),
         # para que el resultado de seguir el camino no salte bruscamente de
         # un waypoint a otro.
@@ -313,7 +315,7 @@ class Explorador(Node):
         rangos = np.array(msg.ranges)
         n = len(rangos)
         angulos = msg.angle_min + np.arange(n) * msg.angle_increment
-        validos = np.isfinite(rangos) & (rangos > msg.range_min)
+        validos = np.isfinite(rangos) & (rangos > max(msg.range_min, self.distancia_minima_valida))
         if not np.any(validos):
             return 0.0, 0.0
 
@@ -496,8 +498,8 @@ class Explorador(Node):
     def controlar(self):
         pose = self.obtener_pose_robot()
 
-        self.pub_estado.publish(String(data=self.estado))
         self.transicionar(pose)
+        self.pub_estado.publish(String(data=self.estado))
 
         if self.estado in (ESTADO_INICIALIZANDO, ESTADO_TERMINADO) or pose is None:
             self.pub_cmd_vel.publish(Twist())
