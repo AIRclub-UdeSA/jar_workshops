@@ -70,6 +70,45 @@ con el mini-proyecto de esa semana:
   convención que se repite desde la semana 03 en adelante.
 - Preferí commits chicos y revisables.
 
+## CI: cómo reproducir los checks localmente
+
+Cada PR contra `main` corre el workflow
+[`build-and-test.yml`](.github/workflows/build-and-test.yml): arma los
+paquetes publicados sobre ROS 2 Humble y corre lo que haya de tests, sin
+resolver los TODOs de ningún ejercicio. Podés correr los mismos checks a
+mano.
+
+Parado en la raíz de este repo (no hace falta el workspace armado):
+
+```bash
+python3 -m compileall -q .
+python3 .github/scripts/verificar_package_xml.py
+```
+
+Parado en la raíz de tu workspace ROS (el que tiene este repo clonado en
+`src/`, ver [Cómo empezar](#cómo-empezar)):
+
+```bash
+rosdep install --from-paths src --ignore-src -y \
+  -t build -t buildtool -t build_export -t buildtool_export -t exec
+colcon build
+source install/setup.bash
+python3 src/jar_workshops/.github/scripts/verificar_entry_points.py
+colcon test && colcon test-result --verbose
+```
+
+Un `package.xml` mal formado, un `setup.py` que tira un error al
+evaluarse, o un entry point que apunta a una función que no existe hacen
+fallar alguno de estos pasos. Ningún paso ejecuta la lógica de los nodos,
+así que un ejercicio con TODOs sin resolver (pero sintácticamente válido)
+pasa sin problema.
+
+Nota: los `test_depend` de cada `package.xml` (`ament_copyright`,
+`ament_flake8`, `ament_pep257`) no resuelven contra la base de rosdep de
+Humble, así que el `rosdep install` de arriba se restringe a los tipos de
+dependencia que sí se usan (`build`, `buildtool`, `build_export`,
+`buildtool_export`, `exec`). Ese CI no corre esos linters.
+
 ## Pull requests
 
 La rama `main` está protegida en GitHub (branch protection rule, classic).

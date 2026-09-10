@@ -1,0 +1,50 @@
+name: Build y tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-22.04
+    container:
+      image: ros:humble-ros-base
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verificar sintaxis (compileall)
+        run: python3 -m compileall -q .
+
+      - name: Verificar package.xml
+        run: python3 .github/scripts/verificar_package_xml.py
+
+      - name: Instalar dependencias (rosdep)
+        run: |
+          apt-get update
+          apt-get install -y python3-colcon-common-extensions python3-rosdep
+          rosdep update
+          # Solo dependencias de build/exec: los test_depend declarados
+          # (ament_copyright, ament_flake8, ament_pep257) no resuelven en
+          # la base de rosdep y no los usamos en este workflow.
+          rosdep install --from-paths . --ignore-src -y \
+            -t build -t buildtool -t build_export -t buildtool_export -t exec
+
+      - name: colcon build
+        run: |
+          . /opt/ros/humble/setup.bash
+          colcon build
+
+      - name: Verificar entry points
+        run: |
+          . /opt/ros/humble/setup.bash
+          . install/setup.bash
+          python3 .github/scripts/verificar_entry_points.py
+
+      - name: colcon test
+        run: |
+          . /opt/ros/humble/setup.bash
+          . install/setup.bash
+          colcon test
+          colcon test-result --verbose
