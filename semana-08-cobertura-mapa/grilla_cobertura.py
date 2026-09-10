@@ -16,6 +16,8 @@ from tf2_ros import Buffer, TransformListener
 
 from cobertura_mapa.trazado import trazar_rayo
 
+FRECUENCIA_HZ = 10.0
+
 
 def yaw_de_quaternion(q: Quaternion) -> float:
     return math.atan2(2.0 * (q.w * q.z + q.x * q.y), 1.0 - 2.0 * (q.y * q.y + q.z * q.z))
@@ -72,6 +74,7 @@ class GrillaCobertura(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.aviso_tf_mostrado = False
         self.pose_inicial_confirmada = False
+        self.ultimo_scan = None
 
         qos_mapa = QoSProfile(
             depth=1,
@@ -84,6 +87,7 @@ class GrillaCobertura(Node):
         self.create_subscription(
             PoseWithCovarianceStamped, 'initialpose', self.recibir_pose_inicial, 10)
         self.pub_grilla = self.create_publisher(OccupancyGrid, 'grilla_cobertura', qos_mapa)
+        self.timer = self.create_timer(1.0 / FRECUENCIA_HZ, self.marcar_cobertura)
 
     # ---------- construcción de la grilla ----------
 
@@ -146,15 +150,27 @@ class GrillaCobertura(Node):
         return t.x, t.y
 
     def recibir_scan(self, msg: LaserScan):
-        """
-        TODO: el corazón de este nodo -- corre una vez por cada scan que
-        llega. Por cada rayo del lidar, trazar la línea entre la celda del
-        robot y la celda donde terminó el rayo, y marcar como cubiertas
-        todas las celdas libres que esa línea atraviesa.
+        """Separación sensor/decisión (ver CONTRIBUTING.md): el callback de
+        un sensor solo guarda el último dato, nunca decide ni actúa -- la
+        lógica pesada vive en `marcar_cobertura()`, llamada por un timer a
+        frecuencia fija, mismo patrón que `controlar()` en `explorador.py`."""
+        self.ultimo_scan = msg
 
-          1. Si `self.cubierta` es `None` (todavía no llegó `/map`) o
+    def marcar_cobertura(self):
+        """
+        TODO: el corazón de este nodo -- corre a frecuencia fija
+        (`FRECUENCIA_HZ`), no una vez por scan. Por cada rayo del último
+        lidar recibido, trazar la línea entre la celda del robot y la
+        celda donde terminó el rayo, y marcar como cubiertas todas las
+        celdas libres que esa línea atraviesa.
+
+          1. Si `self.cubierta` es `None` (todavía no llegó `/map`),
              `self.pose_inicial_confirmada` es `False` (todavía no hay un
-             humano confirmando dónde está el robot), `return`.
+             humano confirmando dónde está el robot), o `self.ultimo_scan`
+             es `None` (todavía no llegó ningún `/scan`), `return`. Si no,
+             guardá `msg = self.ultimo_scan` -- de acá en más es el mismo
+             procesamiento de siempre, solo que sobre el último scan
+             recibido en vez de uno que llega como argumento.
           2. Pedir la pose del robot con `self.obtener_pose_robot()` (ya
              resuelta). Si da `None`, `return`.
           3. Convertir esa pose a celda con `self.celda_de(x, y)`. Si cae
