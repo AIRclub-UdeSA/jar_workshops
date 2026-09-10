@@ -51,6 +51,7 @@ con el mini-proyecto de esa semana:
 | 05 | `launch_rviz` | Armá tu launch y tu RViz (sección transversal) |
 | 06 | `localizacion` | Localización en el mapa con filtro de partículas |
 | 07 | `obstaculos_no_mapeados` | Reconocer obstáculos que no están en el mapa |
+| 08 | `cobertura_mapa` | Cobertura del mapa con A* y máquina de estados de misión |
 
 ## Estilo de código
 
