@@ -90,7 +90,8 @@ Parado en la raíz de tu workspace ROS (el que tiene este repo clonado en
 
 ```bash
 rosdep install --from-paths src --ignore-src -y \
-  -t build -t buildtool -t build_export -t buildtool_export -t exec
+  -t build -t buildtool -t build_export -t buildtool_export -t exec -t test \
+  --skip-keys "ament_copyright ament_flake8 ament_pep257"
 colcon build
 source install/setup.bash
 python3 src/jar_workshops/.github/scripts/verificar_entry_points.py
@@ -103,11 +104,12 @@ fallar alguno de estos pasos. Ningún paso ejecuta la lógica de los nodos,
 así que un ejercicio con TODOs sin resolver (pero sintácticamente válido)
 pasa sin problema.
 
-Nota: los `test_depend` de cada `package.xml` (`ament_copyright`,
+Nota: de los `test_depend` de cada `package.xml`, tres (`ament_copyright`,
 `ament_flake8`, `ament_pep257`) no resuelven contra la base de rosdep de
-Humble, así que el `rosdep install` de arriba se restringe a los tipos de
-dependencia que sí se usan (`build`, `buildtool`, `build_export`,
-`buildtool_export`, `exec`). Ese CI no corre esos linters.
+Humble, así que el `rosdep install` de arriba los saltea explícitamente
+con `--skip-keys`. El resto de `test_depend` (`python3-pytest`) sí se
+instala, para que `colcon test` pueda correr tests de pytest si algún
+paquete los agrega. Ese CI no corre los linters de arriba (`ament_*`).
 
 ## Pull requests
 

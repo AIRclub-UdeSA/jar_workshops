@@ -28,11 +28,15 @@ jobs:
           apt-get update
           apt-get install -y python3-colcon-common-extensions python3-rosdep
           rosdep update
-          # Solo dependencias de build/exec: los test_depend declarados
-          # (ament_copyright, ament_flake8, ament_pep257) no resuelven en
-          # la base de rosdep y no los usamos en este workflow.
+          # Incluye test_depend (para instalar python3-pytest, que sí
+          # resuelve y hace falta para que colcon test pueda correr
+          # tests de pytest si algún paquete los agrega). Los tres
+          # test_depend restantes (ament_copyright, ament_flake8,
+          # ament_pep257) no resuelven en la base de rosdep, así que se
+          # saltean explícitamente en vez de descartar toda la categoría.
           rosdep install --from-paths . --ignore-src -y \
-            -t build -t buildtool -t build_export -t buildtool_export -t exec
+            -t build -t buildtool -t build_export -t buildtool_export -t exec -t test \
+            --skip-keys "ament_copyright ament_flake8 ament_pep257"
 
       - name: colcon build
         run: |
