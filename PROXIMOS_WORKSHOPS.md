@@ -14,32 +14,20 @@ ya está escrita — quedó como su propio mini-workshop en
 apoyarse en ella: en vez de reexplicar launch o RViz, alcanza con decir
 "agregá tu nodo al launch" y "agregá este display a tu RViz".
 
-[Semana 06](semana-06-localizacion/) (localización) y
+[Semana 06](semana-06-localizacion/) (localización),
 [semana 07](semana-07-obstaculos-no-mapeados/) (obstáculos que no están en
-el mapa) ya están escritas, en ese orden — semana 07 depende de tener pose
-en `map`, que es justo lo que resuelve la 06, y de paso absorbe lo que
-hubiera sido un workshop aparte de "coordenada de víctima": al ya
-transformar cada punto a `map` para comparar contra el mapa, reportar una
-coordenada es la conclusión natural del mismo pipeline (combinarlo con
-`/scan_rojo` de semana 04 para reportar la víctima en particular queda
-como ejercicio de cada equipo, no como workshop nuevo).
+el mapa) y [semana 08](semana-08-cobertura-mapa/) (cobertura del mapa) ya
+están escritas — semana 07 depende de tener pose en `map`, que es justo lo
+que resuelve la 06, y de paso absorbe lo que hubiera sido un workshop
+aparte de "coordenada de víctima": al ya transformar cada punto a `map`
+para comparar contra el mapa, reportar una coordenada es la conclusión
+natural del mismo pipeline (combinarlo con `/scan_rojo` de semana 04 para
+reportar la víctima en particular queda como ejercicio de cada equipo, no
+como workshop nuevo). Semana 08 no depende de la 07 — son ramas hermanas,
+las dos parten de la 06 — y es, por su propio README, el último workshop
+**manual** del roadmap.
 
 ---
-
-## Workshop — "Explorar el mapa en vez de deambular"
-
-**Por qué hace falta:** semana 03 le enseña al robot a no chocar, pero no
-a buscar de forma sistemática. En una competencia con tiempo limitado, la
-estrategia de búsqueda importa tanto como esquivar bien — "avanzar hasta
-chocar y girar" no cubre el área de forma confiable.
-
-**Qué cubre**, de más simple a más avanzado (la elección depende de
-cuánto tiempo haya para el temario):
-
-- Una lista de waypoints que cubran el mapa, yendo siempre al más cercano
-  no visitado.
-- Frontier exploration.
-- Usar Nav2 directamente para que planifique.
 
 ## Workshop — "Nav2: reemplazar lo manual por el stack real"
 
@@ -64,7 +52,8 @@ en vez de convivir con ellos.
 - Un **controller** (DWB o regulated pure pursuit) reemplaza la máquina de
   estados de evasión reactiva.
 - **`NavigateToPose`** (o `explore_lite` si se quiere explorar sin un
-  objetivo fijo) reemplaza la exploración manual por waypoints.
+  objetivo fijo) reemplaza la exploración manual por waypoints de
+  [semana 08](semana-08-cobertura-mapa/).
 
 **Qué NO reemplaza:** la parte de [semana 07](semana-07-obstaculos-no-mapeados/)
 que combina la coordenada del objeto no mapeado con `/scan_rojo` de
