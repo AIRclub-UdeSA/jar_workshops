@@ -29,8 +29,6 @@ source install/setup.bash
 | 07 | `obstaculos_no_mapeados` | Reconocer obstáculos que no están en el mapa |
 | 08 | `cobertura_mapa` | Cobertura del mapa con A* y máquina de estados de misión |
 
-Ver [`PROXIMOS_WORKSHOPS.md`](PROXIMOS_WORKSHOPS.md) para el roadmap de lo que sigue.
-
 ## Contribuir
 
 Mirá [CONTRIBUTING.md](CONTRIBUTING.md) para el setup, primeras contribuciones sugeridas, estilo de código y el proceso de pull request.

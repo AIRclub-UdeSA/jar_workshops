@@ -22,8 +22,6 @@ source install/setup.bash
 
 ## Buenas primeras contribuciones
 
-- **Sumar un workshop del roadmap.** Ver
-  [`PROXIMOS_WORKSHOPS.md`](PROXIMOS_WORKSHOPS.md) para lo que sigue.
 - **Mantener sincronizados README y sitio.** Cada semana tiene su
   explicación acá (en el `README.md` de su carpeta) y en
   [jar_site](https://airclub-udesa.github.io/jar_site/workshops/). Si
