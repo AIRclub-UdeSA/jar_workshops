@@ -49,7 +49,7 @@ vas a ir habilitando en los checkpoints de hoy).
 
 En semana 06 escribiste tu propio filtro de partículas: predicción,
 corrección contra un campo de verosimilitud, resampleo, todo a mano.
-[AMCL](https://docs.nav2.org/configuration/packages/configuring-amcl.html)
+[AMCL](https://docs.nav2.org/rolling/configuration_and_development/configuration_guide/others/configuring_amcl/)
 (*Adaptive Monte Carlo Localization*) es exactamente ese mismo algoritmo
 —las mismas tres etapas, el mismo campo de verosimilitud— empaquetado como
 un nodo de Nav2 (`amcl`) que se configura por parámetros en vez de
@@ -82,7 +82,7 @@ cada parámetro de la sección `amcl:` tiene un comentario explicando qué es
 y, cuando corresponde, a qué le equivale en tu `localizador.py` de semana
 06 (mismo algoritmo, nodo en vez de código). La referencia completa, con
 más detalle del que entra en un comentario, es la doc oficial de Nav2:
-[Configuring AMCL](https://docs.nav2.org/configuration/packages/configuring-amcl.html).
+[Configuring AMCL](https://docs.nav2.org/rolling/configuration_and_development/configuration_guide/others/configuring_amcl/).
 
 El parámetro que vale la pena mirar con atención es `robot_model_type`.
 nav2_amcl da a elegir entre dos modelos de movimiento —
@@ -195,7 +195,7 @@ Checkpoint 3 (controller) y 4 (`NavigateToPose`).
 
 En semana 03 escribiste una máquina de estados a mano: si el lidar detecta
 algo cerca, girar; si no, avanzar. Nav2 resuelve el mismo problema con un
-**controller** — acá, [DWB](https://docs.nav2.org/configuration/packages/configuring-dwb-controller.html)
+**controller** — acá, [DWB](https://docs.nav2.org/rolling/configuration_and_development/configuration_guide/controller_plugins/dwb_controller/)
 (*Dynamic Window Approach*): en cada ciclo genera un lote de trayectorias
 candidatas de corto alcance, le pone un puntaje a cada una según los
 costmaps de los Checkpoints 1-2 (evitar lo que marcan) y el plan del
@@ -260,7 +260,7 @@ mirar con atención:
 En semana 08 armaste tu propia lógica de cobertura: una lista de waypoints
 y un criterio propio de "cuál sigue". Nav2 empaqueta ese mismo problema
 —llegar a un punto lejano, replanificando en el camino— en una sola acción,
-[`NavigateToPose`](https://docs.nav2.org/behavior_trees/overview/nav_to_pose_with_replanning_and_recovery.html):
+[`NavigateToPose`](https://docs.nav2.org/rolling/getting_started/nav2_behavior_trees/detailed_behavior_tree_walkthrough/detailed_behavior_tree_walkthrough/):
 `bt_navigator` le pide un camino a `planner_server` (el planificador
 global, mismo problema que tu A* de semana 08), se lo va pasando en tramos
 al `controller_server` del Checkpoint 3 (que esquiva en vivo con los
