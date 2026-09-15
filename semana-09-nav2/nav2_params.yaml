@@ -263,7 +263,7 @@ local_costmap:
       # altura) en vez de un plano 2D — más caro, pero el costmap local sí
       # se lo puede permitir porque su área es chica (3x3 m contra el mapa
       # completo del global).
-      plugins: ["voxel_layer", "inflation_layer"]
+      plugins: ["static_layer", "voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
@@ -320,10 +320,11 @@ controller_server:
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.001
     min_theta_velocity_threshold: 0.001
-    # Si el robot no progresa hacia el goal más de lo que dice
-    # `progress_checker` durante más de esta fracción del tiempo asignado,
-    # lo considera trabado y dispara una recovery (spin/backup) en vez de
-    # reintentar para siempre.
+    # Cuántos segundos tolera controller_server que el plugin de controller
+    # falle en producir un comando de velocidad válido (p. ej. error interno
+    # de cómputo) antes de disparar una recovery. No tiene que ver con si el
+    # robot se mueve o no — esa detección es un mecanismo distinto, la hace
+    # `progress_checker` (ver abajo).
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["general_goal_checker"]
@@ -346,7 +347,13 @@ controller_server:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.25
-      yaw_goal_tolerance: 0.25
+      # Permisivo (~180°) a propósito: sin `RotateToGoal` (ver FollowPath
+      # más abajo) el robot no necesariamente termina mirando hacia la
+      # orientación final del goal. Con una tolerancia chica acá,
+      # NavigateToPose podría quedar reintentando/replanificando sin
+      # terminar nunca. Orientación final estricta queda como Desafío
+      # extra (ver README).
+      yaw_goal_tolerance: 3.15
     # DWB (Dynamic Window Approach): en cada ciclo genera un lote de
     # trayectorias candidatas de corto alcance, les pone puntaje según los
     # `critics` de abajo, y ejecuta la de mejor puntaje — el reemplazo
