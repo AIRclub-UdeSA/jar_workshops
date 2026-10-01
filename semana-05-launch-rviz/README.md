@@ -471,7 +471,7 @@ Chequeos útiles, en otra terminal:
 
 ```bash
 ros2 node list                          # tienen que estar todos los nodos del launch
-ros2 topic hz /scan                     # ~5 Hz — si no publica, el problema no es de RViz
+ros2 topic hz /scan                     # ~7 Hz — si no publica, el problema no es de RViz
 ros2 topic hz /scan_cono                # solo se publica desde adentro de hay_obstaculo()
 ros2 param get /evasor use_sim_time     # tiene que decir True
 ```

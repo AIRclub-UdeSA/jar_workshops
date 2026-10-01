@@ -99,7 +99,7 @@ para poder conectarse. La que importa acá es *reliability*, y el default
 de rclpy es **reliable** — reintentar hasta que el mensaje llegue.
 
 Para un `String` a 1 Hz está perfecto. Los sensores no funcionan así: el
-lidar publica a 5 Hz y no va a parar nunca, así que si un scan se pierde,
+lidar publica a unos 7 Hz y no va a parar nunca, así que si un scan se pierde,
 reintentarlo no tiene ningún sentido — ya viene el próximo, y es más
 nuevo. Por eso los sensores publican en **best effort** ("mandalo, y si
 se pierde, se perdió"), tanto en el simulador como en el ROSMASTER X3
@@ -262,8 +262,8 @@ paso.
 Chequeos útiles en una cuarta terminal:
 
 ```bash
-ros2 topic hz /scan        # ~5 Hz
-ros2 topic hz /odom        # ~30 Hz
+ros2 topic hz /scan        # ~7 Hz
+ros2 topic hz /odom        # ~10 Hz
 ros2 topic hz /scan_cono   # solo se publica desde adentro de hay_obstaculo()
 ```
 
