@@ -78,6 +78,7 @@ paquete `zigzag_mecanum`:
 import rclpy
 from geometry_msgs.msg import Twist
 from rclpy.node import Node
+from rclpy.signals import SignalHandlerOptions
 
 
 class ZigzagNode(Node):
@@ -114,13 +115,15 @@ class ZigzagNode(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
+    # Sin esto, rclpy se apaga solo al recibir Ctrl+C y el mensaje de
+    # frenado de abajo ya no se puede publicar.
+    rclpy.init(args=args, signal_handler_options=SignalHandlerOptions.NO)
     node = ZigzagNode()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        stop_msg = Twist()
-        node.publisher_.publish(stop_msg)
+        # Velocidad cero antes de cerrar, para que el robot frene
+        node.publisher_.publish(Twist())
     finally:
         node.destroy_node()
         rclpy.shutdown()
@@ -161,7 +164,13 @@ ros2 run zigzag_mecanum zigzag
 ```
 
 Para detenerlo, volvé a esa terminal y presioná `Ctrl+C`. El nodo publica
-un mensaje vacío antes de cerrar para pedir velocidad cero.
+un mensaje vacío antes de cerrar para pedir velocidad cero. Para eso el
+`rclpy.init` lleva `signal_handler_options=SignalHandlerOptions.NO`: por
+defecto, rclpy atrapa el `Ctrl+C` y apaga todo él mismo, así que cuando el
+código llega al `except KeyboardInterrupt` el publicador ya no sirve y el
+`publish` falla con `publisher's context is invalid`. Con `NO`, el `Ctrl+C`
+llega como un `KeyboardInterrupt` común, el mensaje de frenado sale, y
+recién después el `finally` cierra el nodo.
 
 Chequeo útil, en otra terminal:
 

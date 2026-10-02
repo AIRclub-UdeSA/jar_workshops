@@ -172,7 +172,7 @@ class DetectorObstaculos(Node):
                       entero (`.astype(np.int32)`)
                `fila = ((ys_map - origen_y) / resolucion)`, ídem
           8. Armar `dentro_grilla`: `True` donde `0 <= col < ancho` Y
-             `0 <= fila < alto` (`ancho, alto = self.campo.shape`, en ese
+             `0 <= fila < alto` (`alto, ancho = self.campo.shape`, en ese
              orden porque una grilla se indexa `[fila, columna]`).
           9. Armar `probabilidad`: un array de N ceros
              (`np.zeros(len(rangos))`), y sobreescribirlo con
