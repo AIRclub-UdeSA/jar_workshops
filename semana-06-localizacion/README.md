@@ -122,8 +122,19 @@ Con `yahboom_rosmaster` y `jar_workshops` clonados en `~/rosmaster_ws/src`
 [`ros2 pkg create`](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Creating-Your-First-ROS2-Package.html)
 es el comando que arma, de cero, la carpeta de un
 paquete ROS 2 — hasta ahora esa carpeta ya venía clonada del repo
-(semanas 01-05); acá la generás vos. Los flags que le pasamos:
+(semanas 01-05); acá la generás vos. Lo que le pasamos:
 
+- **El primer argumento (`localizacion`)** es el **nombre del paquete**:
+  así se va a llamar la carpeta que se crea, y así lo vas a invocar
+  después (`ros2 run localizacion <ejecutable>`). No es un valor mágico —
+  lo elegimos nosotros porque describe el tema de la semana. La
+  convención en ROS 2 es `snake_case` (minúsculas, guiones bajos, sin
+  espacios ni mayúsculas) y un nombre corto que diga qué hace el paquete,
+  mismo criterio que ya viste en `deteccion_color` o `evasion_obstaculos`.
+  Va **antes** de `--dependencies`: ese flag se come todo lo que viene
+  después como una dependencia más, así que si el nombre queda al final
+  `ros2 pkg create` lo toma como dependencia y falla con
+  `the following arguments are required: package_name`.
 - **`--build-type ament_python`**: le dice que es un paquete de Python
   puro (la misma clase de paquete que usaron todas las semanas
   anteriores) — la alternativa, `ament_cmake`, es para paquetes en C++.
@@ -131,20 +142,12 @@ paquete ROS 2 — hasta ahora esa carpeta ya venía clonada del repo
   tu código va a importar; se completan solos como `<depend>` en
   `package.xml` para que no los tengas que escribir a mano (igual, en el
   paso 3 de más abajo vas a tener que sumar uno más).
-- **El último argumento (`localizacion`)** es el **nombre del paquete**:
-  así se va a llamar la carpeta que se crea, y así lo vas a invocar
-  después (`ros2 run localizacion <ejecutable>`). No es un valor mágico —
-  lo elegimos nosotros porque describe el tema de la semana. La
-  convención en ROS 2 es `snake_case` (minúsculas, guiones bajos, sin
-  espacios ni mayúsculas) y un nombre corto que diga qué hace el paquete,
-  mismo criterio que ya viste en `deteccion_color` o `evasion_obstaculos`.
 
 ```bash
 # Terminal 1
 cd ~/rosmaster_ws/src/jar_workshops/semana-06-localizacion
-ros2 pkg create --build-type ament_python --dependencies \
-  rclpy nav_msgs sensor_msgs geometry_msgs tf2_ros \
-  localizacion
+ros2 pkg create localizacion --build-type ament_python --dependencies \
+  rclpy nav_msgs sensor_msgs geometry_msgs tf2_ros
 ```
 
 Esto te genera la misma estructura que ya viste armada de antemano en
@@ -399,6 +402,18 @@ los displays nuevos que necesitás acá (`Map`, `PoseArray`,
 sobra sin lo que necesitás ver, en vez de tu config de semana 05
 extendida.
 
+Todos los nodos que corren junto al simulador llevan
+`--ros-args -p use_sim_time:=true`: es el mismo problema de los dos
+relojes que viste en [semana 05](../semana-05-launch-rviz/), ahora
+pasado por línea de comandos en vez de por el launch. El más delicado es
+`localizador`: publica la tf `map → odom`, y si la estampa con la hora de
+tu PC mientras el resto del árbol usa la del simulador, RViz no puede
+armar la cadena y no ves ni el robot ni el scan. `teleop_twist_keyboard`
+es el único que no lo necesita, porque publica `/cmd_vel` sin timestamp.
+(En el Paso 0 y en la Parte 1 no lo pasamos porque ahí no hay simulador
+publicando `/clock`: con `use_sim_time` en `true` y sin `/clock`, el
+reloj del nodo se queda en cero.)
+
 ```bash
 # Terminal 1 — simulador
 source ~/rosmaster_ws/install/setup.bash
@@ -410,20 +425,22 @@ ros2 launch yahboom_rosmaster_bringup rosmaster_x3_sim.launch.py \
 ```bash
 # Terminal 2 — mapa
 source ~/rosmaster_ws/install/setup.bash
-ros2 run nav2_map_server map_server --ros-args -p yaml_filename:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/maps/laberinto_simple.yaml"
+ros2 run nav2_map_server map_server --ros-args -p use_sim_time:=true \
+  -p yaml_filename:="$(ros2 pkg prefix yahboom_rosmaster_gazebo)/share/yahboom_rosmaster_gazebo/maps/laberinto_simple.yaml"
 ```
 
 ```bash
 # Terminal 3 — activar el mapa
 source ~/rosmaster_ws/install/setup.bash
-ros2 run nav2_lifecycle_manager lifecycle_manager --ros-args -p autostart:=true -p node_names:="['map_server']"
+ros2 run nav2_lifecycle_manager lifecycle_manager --ros-args -p use_sim_time:=true \
+  -p autostart:=true -p node_names:="['map_server']"
 ```
 
 ```bash
 # Terminal 4 — nuestros nodos
 source ~/rosmaster_ws/install/setup.bash
-ros2 run localizacion campo_verosimilitud &
-ros2 run localizacion localizador
+ros2 run localizacion campo_verosimilitud --ros-args -p use_sim_time:=true &
+ros2 run localizacion localizador --ros-args -p use_sim_time:=true
 ```
 
 ```bash
@@ -435,7 +452,7 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```bash
 # Terminal 6 — tu RViz
 source ~/rosmaster_ws/install/setup.bash
-rviz2 -d <ruta a tu config de semana 05>
+rviz2 -d <ruta a tu config de semana 05> --ros-args -p use_sim_time:=true
 ```
 
 Antes de abrirlo, agregale a esa config los displays nuevos que hacen
@@ -447,7 +464,10 @@ Policy: Transient Local` en el QoS de cada uno — ver el Paso 0),
 además del `LaserScan` y `TF` que ya tenías. Una vez que tengas todo esto
 probado y andando, es el momento de meter estas seis terminales en tu
 propio launch de semana 05 (incluyendo tu `Node` de `rviz2` con esta
-config ya actualizada).
+config ya actualizada). En el launch, cada `Node` nuevo lleva
+`parameters=[{'use_sim_time': True}]`, igual que los de semana 05. Si
+algo no aparece en RViz, `ros2 param get /localizador use_sim_time`
+tiene que decir `True` (y lo mismo para cada nodo).
 
 ---
 
