@@ -165,9 +165,9 @@ después. No publica ninguna transformada: ubicarse en el mapa es trabajo
 tuyo.
 
 ```bash
+source ~/rosmaster_ws/install/setup.bash
 cd ~/rosmaster_ws
 colcon build --packages-select mapa_laberinto
-source install/setup.bash
 ```
 
 Bajá el bag y descomprimilo en `~/rosmaster_ws/bags/` (si lo dejás en otro
@@ -671,7 +671,7 @@ source ~/rosmaster_ws/install/setup.bash
 ros2 launch <tu_paquete> <tu_launch>.launch.py
 ```
 
-Corrélo dos veces: primero con las dos escalas en 1.0 y después con las
+Correlo dos veces: primero con las dos escalas en 1.0 y después con las
 tuyas.
 
 ### Qué vas a ver
@@ -841,6 +841,7 @@ Sumalo a tu launch.
 su propia terminal, como el mapa: no es parte de tu código.
 
 ```bash
+source ~/rosmaster_ws/install/setup.bash
 cd ~/rosmaster_ws
 colcon build --packages-select evaluador_victimas
 ```
