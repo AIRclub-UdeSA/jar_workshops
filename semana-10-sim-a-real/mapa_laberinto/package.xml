@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>mapa_laberinto</name>
+  <version>0.1.0</version>
+  <description>Semana 10 del Challenge JAR: publica el mapa del laberinto vacío en /map, retenido (transient local).</description>
+  <maintainer email="airclub@udesa.edu.ar">AIR Club UdeSA</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
