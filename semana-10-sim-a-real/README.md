@@ -146,6 +146,7 @@ Topics del bag:
 | `/cam_1/color/image_raw` | Cámara a color, 30 Hz, 320 × 240, **Best Effort** |
 | `/cam_1/color/camera_info` | Intrínsecos de la cámara |
 | `/cmd_vel`, `/joint_states` | Lo que se le mandó al robot y el estado de las ruedas |
+| `/scan_filtered` | Copia de `/scan` filtrada por el robot, pero casi sin rayos válidos (unos 9 de 1080). **No la uses**: usá `/scan`. |
 
 El bag **no tiene `/map` ni la transformada `map → odom`**: el mapa lo
 publica el paquete de esta semana, y `map → odom` lo vas a publicar vos cuando localices al robot (paso 4).
@@ -587,8 +588,10 @@ Preguntas:
 
 - ¿Qué signo tiene el cociente `IMU/odom`? ¿Qué te dice eso del IMU? Vas a
   tener que tenerlo en cuenta si alguna vez usás `/imu/data`.
-- Cambiá `recibir_odom` para que sume valores absolutos en vez de con signo
-  y volvé a correr. ¿Cuánto da el cociente? ¿Por qué cambia?
+- Cambiá `recibir_odom` **y** `recibir_imu` para que sumen valores
+  absolutos en vez de con signo y volvé a correr. ¿Cuánto da el cociente?
+  ¿Por qué cambia? (Si cambiás solo uno de los dos, el cociente no significa
+  nada.)
 - ¿Por qué medimos el avance con el rayo de **atrás** y no con el de
   adelante? (Mirá qué tiene adelante el robot en ese tramo.)
 - Compará las dos escalas, la del giro y la del avance. Si dan parecido,
@@ -637,6 +640,11 @@ el localizador, y si quedan las dos, se pisan. Agregá:
   segundo con `escala_giro` y `escala_avance` en los valores que mediste.
 - Para la pose inicial, dejá `(0, 0, 0)` con la dispersión por defecto: el
   robot arranca **cerca** del origen, no exactamente ahí.
+
+Sacá también `odom_corregida` (y `medir_odometria`, que ya cumplió su
+trabajo). Tu `localizador` ya publica `/camino_odom` y `/camino_corregido`,
+los mismos topics que `odom_corregida`: si quedan los dos nodos, publican
+caminos distintos en el mismo topic y los `Path` de RViz se pisan.
 
 Todos con `use_sim_time: True`, como siempre.
 
@@ -869,6 +877,11 @@ ros2 launch <tu_paquete> <tu_launch>.launch.py
 > cargada (por ejemplo, grabando la pantalla, o con el bag a velocidad ×2),
 > se atrasa en los giros y las posiciones salen corridas. Corré el bag a
 > velocidad normal.
+
+> [!NOTE]
+> **El evaluador no se reinicia solo.** Cuando usa sus dos reportes, ignora
+> todo lo que llegue después, aunque vuelvas a correr el bag desde el
+> principio. Antes de cada corrida, cerrá la Terminal 3 y volvé a abrirla.
 
 ### Qué vas a ver
 
