@@ -413,10 +413,16 @@ velocidad ×0,5):
 ![Animación de RViz: mientras el robot gira, los puntos verdes de /scan_rojo se estiran a lo largo de la pared en vez de quedarse sobre la caja; cuando el giro termina, vuelven a caer sobre la caja](../docs/semana-10-sim-a-real/paso2_giro.gif)
 
 La causa está en cómo `detector_scan` junta los dos sensores: en cada scan
-usa **la última imagen que llegó**, sin mirar de qué momento es. En este bag,
-esa imagen es siempre de unos 0,1 s antes que el scan. Con el robot quieto
-no importa. Girando a 50°/s, en 0,1 s el robot giró 5°, y a 2 m de distancia
-eso corre el punto unos 20 cm.
+usa **la última imagen que llegó**, sin mirar de qué momento es. Y un scan
+no es un instante: el lidar tarda unos 0,13 s en dar una vuelta (es el
+`scan_time` del mensaje). El `header.stamp` del scan marca cuándo
+**empezó** esa vuelta, pero el mensaje sale recién cuando termina. La imagen,
+en cambio, llega casi apenas se toma. Por eso, en este bag, la última imagen
+tiene un `header.stamp` unos 0,11 s **posterior** al del scan: es de cerca
+del final de la vuelta. Con el robot quieto no importa. Girando a 50°/s, en
+0,13 s el robot gira unos 6,5°: los rayos del principio de la vuelta miraron
+para un lado y la imagen es de cuando el robot ya miraba para otro. A 2 m de
+distancia, unos 5° corren el punto unos 20 cm.
 
 El desafío: que `detector_scan` no marque ningún punto como rojo mientras el
 robot gira más rápido que un umbral.
@@ -434,8 +440,9 @@ gira despacio mirando la caja.
 
 Pregunta para pensar: la solución "de libro" sería juntar cada scan con la
 imagen de su mismo instante, comparando los `header.stamp`. En este bag,
-¿alcanzaría? (Pista: mirá la diferencia de horas entre la imagen y el scan
-con el robot quieto y girando.)
+¿alcanzaría? (Pista: para cada sensor, compará la hora a la que llega el
+mensaje con su `header.stamp`, y fijate cuánto dura una vuelta del lidar.
+¿A qué instante corresponde el `header.stamp` de un scan?)
 
 ---
 
