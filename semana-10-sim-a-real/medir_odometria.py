@@ -40,8 +40,9 @@ def indice_rayo_hacia_atras(scan: LaserScan) -> int:
          lidar, visto desde el robot?
       2. Con eso, decidí qué ángulo del lidar apunta hacia atrás del robot.
       3. Despejá i de la fórmula de arriba y redondealo a entero.
-      4. Por las dudas, devolvelo módulo `len(scan.ranges)`: si el ángulo cae
-         justo en un extremo del arreglo, el índice puede dar uno de más.
+      4. Probalo: al principio del bag, con el robot quieto, `lidar atrás` tiene
+         que dar un valor finito y chico (unos 0,3 m: la pared que el robot
+         tiene detrás), no `nan`.
     """
     return 0
 
