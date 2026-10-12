@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>evaluador_victimas</name>
+  <version>0.1.0</version>
+  <description>Semana 10 del Challenge JAR: puntúa los reportes en /victimas contra las cajas del bag.</description>
+  <maintainer email="airclub@udesa.edu.ar">AIR Club UdeSA</maintainer>
+  <license>MIT</license>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>visualization_msgs</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -1,0 +1,8 @@
+# Centros de las cajas del bag laberinto_victimas, en el frame map de laberinto_vacio.
+evaluador:
+  ros__parameters:
+    # Cajas rojas (víctimas): x1, y1, x2, y2, ...
+    victimas: [-0.153, 0.865, 1.482, -0.167]
+    # Cajas de otros colores (no dan puntos): x1, y1, ...
+    distractores: [1.482, 0.861]
+    lado_caja: 0.18
