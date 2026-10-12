@@ -29,6 +29,7 @@ source install/setup.bash
 | 07 | `obstaculos_no_mapeados` | Reconocer obstáculos que no están en el mapa |
 | 08 | `cobertura_mapa` | Cobertura del mapa con A* y máquina de estados de misión |
 | 09 | `nav2_bringup` + config | Nav2: AMCL, costmaps, DWB y `NavigateToPose` reemplazando lo manual |
+| 10 | `mapa_laberinto`, `evaluador_victimas` | Del simulador al robot real: ubicar las cajas rojas en un bag del robot real |
 
 ## Contribuir
 
