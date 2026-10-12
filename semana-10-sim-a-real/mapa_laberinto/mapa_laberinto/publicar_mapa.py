@@ -23,24 +23,40 @@ QOS_MAPA = QoSProfile(
 
 
 def leer_pgm(ruta):
-    """Lee un PGM binario (P5). Devuelve (ancho, alto, bytes de píxeles)."""
+    """Lee un PGM binario (P5) de 8 bits. Devuelve (ancho, alto, bytes de píxeles)."""
     datos = Path(ruta).read_bytes()
     partes, pos = [], 0
     while len(partes) < 4:  # magic, ancho, alto, maxval
-        while datos[pos:pos + 1].isspace():
+        while pos < len(datos) and datos[pos:pos + 1].isspace():
             pos += 1
         if datos[pos:pos + 1] == b'#':
-            pos = datos.index(b'\n', pos)
+            pos = datos.find(b'\n', pos)
+            if pos < 0:
+                raise ValueError(f'{ruta}: encabezado PGM incompleto')
             continue
         ini = pos
-        while not datos[pos:pos + 1].isspace():
+        while pos < len(datos) and not datos[pos:pos + 1].isspace():
             pos += 1
+        if pos == ini:  # se terminó el archivo antes de completar el encabezado
+            raise ValueError(f'{ruta}: encabezado PGM incompleto')
         partes.append(datos[ini:pos])
     pos += 1  # un único whitespace tras maxval
     if partes[0] != b'P5':
         raise ValueError(f'{ruta}: solo se soporta PGM binario (P5)')
-    ancho, alto = int(partes[1]), int(partes[2])
-    return ancho, alto, datos[pos:pos + ancho * alto]
+    try:
+        ancho, alto, maxval = (int(p) for p in partes[1:])
+    except ValueError:
+        raise ValueError(f'{ruta}: encabezado PGM inválido') from None
+    if ancho <= 0 or alto <= 0:
+        raise ValueError(f'{ruta}: tamaño inválido ({ancho}x{alto})')
+    if maxval != 255:
+        raise ValueError(f'{ruta}: solo se soporta PGM de 8 bits (maxval 255), tiene {maxval}')
+    px = datos[pos:pos + ancho * alto]
+    if len(px) != ancho * alto:
+        raise ValueError(
+            f'{ruta}: el encabezado dice {ancho}x{alto} = {ancho * alto} píxeles '
+            f'pero el archivo trae {len(px)}')
+    return ancho, alto, px
 
 
 def cargar_mapa(ruta_yaml):
