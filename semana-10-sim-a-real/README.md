@@ -165,15 +165,16 @@ después. No publica ninguna transformada: ubicarse en el mapa es trabajo
 tuyo.
 
 ```bash
+source ~/rosmaster_ws/install/setup.bash
 cd ~/rosmaster_ws
 colcon build --packages-select mapa_laberinto
-source install/setup.bash
 ```
 
 Bajá el bag y descomprimilo en `~/rosmaster_ws/bags/` (si lo dejás en otro
 lado, cambiá la ruta en los comandos de abajo):
 
 ```bash
+source ~/rosmaster_ws/install/setup.bash
 mkdir -p ~/rosmaster_ws/bags && cd ~/rosmaster_ws/bags
 wget https://github.com/AIRclub-UdeSA/jar_workshops/releases/download/semana-10-datos/laberinto_victimas.tar.gz
 tar xzf laberinto_victimas.tar.gz
@@ -671,7 +672,7 @@ source ~/rosmaster_ws/install/setup.bash
 ros2 launch <tu_paquete> <tu_launch>.launch.py
 ```
 
-Corrélo dos veces: primero con las dos escalas en 1.0 y después con las
+Correlo dos veces: primero con las dos escalas en 1.0 y después con las
 tuyas.
 
 ### Qué vas a ver
@@ -803,6 +804,7 @@ cajas del bag y hace esto:
 Podés probarlo sin el bag, mandando un reporte a mano:
 
 ```bash
+source ~/rosmaster_ws/install/setup.bash
 ros2 topic pub --once /victimas geometry_msgs/msg/PointStamped "{header: {frame_id: map}, point: {x: 0.5, y: 0.3}}"
 ```
 
@@ -841,6 +843,7 @@ Sumalo a tu launch.
 su propia terminal, como el mapa: no es parte de tu código.
 
 ```bash
+source ~/rosmaster_ws/install/setup.bash
 cd ~/rosmaster_ws
 colcon build --packages-select evaluador_victimas
 ```
