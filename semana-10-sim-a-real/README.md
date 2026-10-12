@@ -174,6 +174,7 @@ Bajá el bag y descomprimilo en `~/rosmaster_ws/bags/` (si lo dejás en otro
 lado, cambiá la ruta en los comandos de abajo):
 
 ```bash
+source ~/rosmaster_ws/install/setup.bash
 mkdir -p ~/rosmaster_ws/bags && cd ~/rosmaster_ws/bags
 wget https://github.com/AIRclub-UdeSA/jar_workshops/releases/download/semana-10-datos/laberinto_victimas.tar.gz
 tar xzf laberinto_victimas.tar.gz
@@ -803,6 +804,7 @@ cajas del bag y hace esto:
 Podés probarlo sin el bag, mandando un reporte a mano:
 
 ```bash
+source ~/rosmaster_ws/install/setup.bash
 ros2 topic pub --once /victimas geometry_msgs/msg/PointStamped "{header: {frame_id: map}, point: {x: 0.5, y: 0.3}}"
 ```
 
