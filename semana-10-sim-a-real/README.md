@@ -176,7 +176,7 @@ lado, cambiá la ruta en los comandos de abajo):
 ```bash
 source ~/rosmaster_ws/install/setup.bash
 mkdir -p ~/rosmaster_ws/bags && cd ~/rosmaster_ws/bags
-wget https://github.com/AIRclub-UdeSA/jar_workshops/releases/download/semana-10-datos/laberinto_victimas.tar.gz
+curl -L -O https://github.com/AIRclub-UdeSA/jar_workshops/releases/download/semana-10-datos/laberinto_victimas.tar.gz
 tar xzf laberinto_victimas.tar.gz
 ros2 bag info laberinto_victimas
 ```
