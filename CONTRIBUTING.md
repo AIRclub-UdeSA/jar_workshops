@@ -37,8 +37,11 @@ source install/setup.bash
 
 ## Estructura del repo
 
-Cada carpeta `semana-NN-slug/` contiene un paquete ROS 2 (`ament_python`)
-con el mini-proyecto de esa semana:
+Cada carpeta `semana-NN-slug/` tiene el mini-proyecto de esa semana. Las
+semanas 01-05 traen el paquete ROS 2 (`ament_python`) ya armado; en las
+semanas 06-08 el repo trae solo los archivos con TODOs y el paquete lo creás
+vos (ver el README de cada una); la 09 es configuración de Nav2 y la 10
+trae dos paquetes:
 
 | Semana | Paquete | Tema |
 | --- | --- | --- |
@@ -50,6 +53,8 @@ con el mini-proyecto de esa semana:
 | 06 | `localizacion` | Localización en el mapa con filtro de partículas |
 | 07 | `obstaculos_no_mapeados` | Reconocer obstáculos que no están en el mapa |
 | 08 | `cobertura_mapa` | Cobertura del mapa con A* y máquina de estados de misión |
+| 09 | `nav2_bringup` + config | Nav2: AMCL, costmaps, DWB y `NavigateToPose` reemplazando lo manual |
+| 10 | `mapa_laberinto`, `evaluador_victimas` | Del simulador al robot real: ubicar las cajas rojas en un bag del robot real |
 
 ## Estilo de código
 

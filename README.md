@@ -2,7 +2,7 @@
 
 Código de los workshops asincrónicos del [Challenge JAR](https://github.com/AIRclub-UdeSA/jar_site) (AIR Club UdeSA, JAR 2026).
 
-Cada carpeta `semana-NN-slug/` contiene un paquete ROS 2 (`ament_python`) con el mini-proyecto de esa semana. La explicación de cada workshop — objetivo, cómo correrlo contra el simulador, qué observar — vive en el sitio: https://airclub-udesa.github.io/jar_site/workshops/
+Cada carpeta `semana-NN-slug/` tiene el mini-proyecto de esa semana: las semanas 01-05 traen el paquete ROS 2 (`ament_python`) ya armado, en las 06-08 lo creás vos (ver el README de cada una), la 09 es configuración de Nav2 y la 10 trae dos paquetes. La explicación de cada workshop — objetivo, cómo correrlo contra el simulador, qué observar — vive en el sitio: https://airclub-udesa.github.io/jar_site/workshops/
 
 ## Uso
 
