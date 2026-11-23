@@ -19,8 +19,8 @@ class JuntarVictimas(Node):
     cara** de la caja, no su centro.
 
     Con eso:
-      1. corre cada detección media caja hacia adentro, para acercarla al
-         centro;
+      1. descarta las detecciones lejanas y corre cada una media caja hacia
+         adentro, para acercarla al centro;
       2. agrupa las detecciones que están cerca (una caja = un grupo);
       3. cuando un grupo junta `detecciones_minimas`, publica la mediana del
          grupo en /victimas, una sola vez por grupo y como mucho `victimas`
@@ -29,15 +29,17 @@ class JuntarVictimas(Node):
 
     def __init__(self):
         super().__init__('juntar_victimas')
-        self.declare_parameter('victimas', 2)
-        self.declare_parameter('detecciones_minimas', 30)
+        self.declare_parameter('victimas', 3)
+        self.declare_parameter('detecciones_minimas', 10)
         self.declare_parameter('radio_grupo', 0.30)
         self.declare_parameter('mitad_caja', 0.09)
+        self.declare_parameter('distancia_maxima', 1.5)
         self.declare_parameter('base_frame', 'base_footprint')
         self.victimas = self.get_parameter('victimas').value
         self.minimas = self.get_parameter('detecciones_minimas').value
         self.radio = self.get_parameter('radio_grupo').value
         self.mitad = self.get_parameter('mitad_caja').value
+        self.distancia_maxima = self.get_parameter('distancia_maxima').value
         self.base_frame = self.get_parameter('base_frame').value
 
         # Cada grupo es un dict: {'puntos': [(x, y), ...], 'publicado': bool}
@@ -72,7 +74,8 @@ class JuntarVictimas(Node):
           2. Para cada `pose` de `msg.poses`, con `x, y = pose.position.x,
              pose.position.y`:
              - calculá el vector del robot a la detección (`dx`, `dy`) y su
-               largo `d` con `math.hypot`. Si `d` es casi cero, salteala;
+               largo `d` con `math.hypot`. Si `d` es casi cero o mayor que
+               `self.distancia_maxima`, salteala;
              - corré el punto `self.mitad` metros en esa dirección:
                `x + self.mitad * dx / d`, y lo mismo para `y`;
              - pasáselo a `self.agregar(x, y)`.
