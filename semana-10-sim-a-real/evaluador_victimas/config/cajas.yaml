@@ -2,7 +2,9 @@
 evaluador:
   ros__parameters:
     # Cajas rojas (víctimas): x1, y1, x2, y2, ...
-    victimas: [-0.153, 0.865, 1.482, -0.167]
+    victimas: [0.257, 1.331, 1.085, 2.423, 2.100, 1.820]
     # Cajas de otros colores (no dan puntos): x1, y1, ...
-    distractores: [1.482, 0.861]
+    distractores: [0.147, 0.813]
+    # Conos azules (no dan puntos): x1, y1, ...
+    conos: [0.84, 0.92, 1.18, 1.88, 1.00, 3.02]
     lado_caja: 0.18
