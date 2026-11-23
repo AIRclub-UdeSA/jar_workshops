@@ -6,8 +6,8 @@ Reglas:
 - Cada reporte se asigna a la caja roja más cercana, si está a 0,5 m o menos.
 - Cada caja se queda con su reporte más cercano: 100 puntos a 0,25 m o menos, 50 hasta 0,5 m.
 
-Además publica marcadores para RViz (/evaluador/marcadores): las cajas reales, los anillos de
-0,25 y 0,5 m alrededor de cada caja roja, y cada reporte con su número y sus puntos.
+Además publica marcadores para RViz (/evaluador/marcadores): las cajas reales, los conos, los
+anillos de 0,25 y 0,5 m alrededor de cada caja roja, y cada reporte con su número y sus puntos.
 """
 import math
 
@@ -46,9 +46,11 @@ class Evaluador(Node):
         super().__init__('evaluador')
         self.declare_parameter('victimas', [0.0])
         self.declare_parameter('distractores', [0.0])
+        self.declare_parameter('conos', [0.0])
         self.declare_parameter('lado_caja', 0.18)
         self.victimas = pares(self.get_parameter('victimas').value)
         self.distractores = pares(self.get_parameter('distractores').value)
+        self.conos = pares(self.get_parameter('conos').value)
         self.lado = self.get_parameter('lado_caja').value
         self.maximo = len(self.victimas)
         self.reportes = []          # (x, y, valido)
@@ -156,6 +158,9 @@ class Evaluador(Node):
         for dx, dy in self.distractores:
             arr.markers.append(self.marcador(k, Marker.CUBE, dx, dy, (0.1, 0.3, 0.95, 0.9),
                                              (self.lado, self.lado, 0.25), 'cajas', 0.125)); k += 1
+        for cx, cy in self.conos:
+            arr.markers.append(self.marcador(k, Marker.CYLINDER, cx, cy, (0.1, 0.3, 0.95, 0.9),
+                                             (0.12, 0.12, 0.3), 'conos', 0.15)); k += 1
         for i, (x, y, valido) in enumerate(self.reportes):
             if not valido:
                 continue
